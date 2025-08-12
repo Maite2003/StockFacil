@@ -1,0 +1,164 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User table
+model User {
+  id              Int      @id @default(autoincrement())
+  email           String   @unique
+  password_hash   String
+  first_name      String
+  last_name       String
+  business_name   String?
+  is_active       Boolean  @default(true)
+  email_verified  Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  customers        Customer[]
+  suppliers        Supplier[]
+  categories       Category[]
+  products         Product[]
+  productVariants  ProductVariant[]
+  variantSuppliers VariantSupplier[]
+
+  @@map("users")
+}
+
+
+// Customers table
+model Customer {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  first_name String
+  last_name  String
+  company    String?
+  phone      String?
+  email      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  // Unique constraint per user
+  @@unique([user_id, email])
+  @@map("customers")
+}
+
+// Suppliers table
+model Supplier {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  first_name String
+  last_name  String
+  company    String?
+  phone      String?
+  email      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  user             User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  variantSuppliers VariantSupplier[]
+
+  // Unique constraint per user
+  @@unique([user_id, email])
+  @@map("suppliers")
+}
+
+// Categories table (self-referencing)
+model Category {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  name        String
+  description String?
+  parent_id   Int?
+  level       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user     User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  parent   Category?  @relation("CategoryHierarchy", fields: [parent_id], references: [id], onDelete: Cascade)
+  children Category[] @relation("CategoryHierarchy")
+  products Product[]
+
+  @@map("categories")
+}
+
+// Products table
+model Product {
+  id                   Int     @id @default(autoincrement())
+  user_id              Int
+  name                 String
+  description          String?
+  selling_price        Decimal @db.Decimal(10, 2)
+  category_id          Int
+  has_variants         Boolean @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Relations
+  user             User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  category         Category          @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  variants         ProductVariant[]
+
+  @@map("products")
+}
+
+// Product variants table
+model ProductVariant {
+  id                      Int     @id @default(autoincrement())
+  user_id                 Int
+  product_id              Int
+  variant_name            String
+  selling_price_modifier  Decimal @default(0) @db.Decimal(10, 2)
+  stock                   Int
+  attributes              Json?
+  min_stock_alert         Int?
+  enable_stock_alerts     Boolean @default(true)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  // Relations
+  user             User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  product          Product           @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  variantSuppliers VariantSupplier[]
+
+  @@map("product_variants")
+}
+
+// Variant-Supplier relationship
+model VariantSupplier {
+  id                  Int     @id @default(autoincrement())
+  user_id             Int
+  variant_id          Int
+  supplier_id         Int
+  purchase_price      Decimal @db.Decimal(10, 2)
+  is_primary_supplier Boolean @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  user     User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  variant  ProductVariant @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+  supplier Supplier       @relation(fields: [supplier_id], references: [id], onDelete: Cascade)
+
+  // Unique constraint: one supplier per variant per user
+  @@unique([user_id, variant_id, supplier_id])
+  @@map("variant_suppliers")
+}

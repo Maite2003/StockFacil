@@ -1,0 +1,427 @@
+# StockFacil - Documentación Completa del Proyecto
+
+## Información General del Proyecto
+
+### Descripción
+**StockFacil** es una aplicación web para la gestión integral de inventarios, clientes y proveedores de empresas. Permite a las empresas mantener control completo sobre su stock, precios, relaciones comerciales y estructura de productos con variantes.
+
+### Tipo de Aplicación
+- **Frontend**: Aplicación Web
+- **Backend**: API REST 
+- **Base de Datos**: PostgreSQL con Prisma ORM
+
+### Estado Actual del Desarrollo
+✅ **Completado**:
+- Esquema de base de datos definido
+- Schema de Prisma configurado
+- Rutas CRUD implementadas para:
+  - Usuarios
+  - Clientes
+  - Proveedores
+  - Categorías
+  - Productos
+  - Variantes de productos
+  - **Variant-Suppliers** (relación variantes-proveedores):
+    - `GET /suppliers/:supplierId/variants` - Obtener variantes de un proveedor
+    - `POST /variant-suppliers/` - Crear relación variant-supplier
+    - `GET /variant-suppliers/:id` - Obtener relación específica
+    - `PATCH /variant-suppliers/:id` - Actualizar precio/proveedor principal
+    - `DELETE /variant-suppliers/:id` - Eliminar relación
+- Validaciones con express-validator implementadas
+
+🔄 **En desarrollo**:
+- Paginación para productos, clientes, proveedores
+
+## Arquitectura Multi-Tenant
+
+### Principio Fundamental
+**TODAS las tablas (excepto `users`) incluyen `user_id` como clave foránea** para garantizar que cada tenant (usuario) solo pueda acceder a sus propios datos.
+
+### Implementación de Seguridad Multi-Tenant
+```sql
+-- Ejemplo de query seguro que siempre incluye user_id
+SELECT * FROM products WHERE user_id = :current_user_id AND id = :product_id;
+
+-- Las relaciones también respetan el tenant
+SELECT p.*, c.name as category_name 
+FROM products p 
+JOIN categories c ON c.id = p.category_id 
+WHERE p.user_id = :current_user_id AND c.user_id = :current_user_id;
+```
+
+### Constraints Multi-Tenant
+Todas las tablas tienen constraints que aseguran que las referencias pertenezcan al mismo usuario:
+
+```sql
+-- Ejemplo en product_variants
+CONSTRAINT same_user_check CHECK (
+  product_id IN (SELECT id FROM products WHERE user_id = NEW.user_id)
+)
+```
+
+### Modelo de Datos Multi-Tenant
+La aplicación utiliza arquitectura **multi-tenant** donde cada usuario (tenant) tiene datos completamente aislados. **Todas las tablas incluyen `user_id`** como clave foránea para garantizar el aislamiento de datos.
+
+#### Beneficios:
+- ✅ **Completo aislamiento de datos**: Cada usuario solo ve sus propios datos
+- ✅ **Escalable para miles de usuarios**: Arquitectura preparada para crecer
+- ✅ **Seguridad a nivel de base de datos**: user_id en todas las tablas previene acceso cruzado
+- ✅ **Integridad referencial**: Todas las relaciones respetan el tenant (user_id)
+- ✅ **Queries automáticamente filtradas**: Siempre se incluye user_id en las consultas
+
+### Estructura de Tablas
+
+#### 1. Users (Usuarios)
+```javascript
+{
+  id: Integer (PK, Auto-increment)
+  email: String (Único, Requerido)
+  password_hash: String (Requerido)
+  first_name: String (Requerido)
+  last_name: String (Requerido)
+  business_name: String (Opcional)
+  is_active: Boolean (Default: true)
+  email_verified: Boolean (Default: false)
+  createdAt: DateTime (Auto)
+  updatedAt: DateTime (Auto)
+}
+```
+
+#### 2. Customers (Clientes)
+```javascript
+{
+  id: Integer (PK, Auto-increment)
+  user_id: Integer (FK -> users.id, Requerido)
+  first_name: String (Requerido)
+  last_name: String (Requerido)
+  company: String (Opcional)
+  phone: String (Opcional)
+  email: String (Requerido)
+  createdAt: DateTime (Auto)
+  updatedAt: DateTime (Auto)
+
+  // Constraint único por usuario
+  UNIQUE(user_id, email)
+}
+```
+
+#### 3. Suppliers (Proveedores)
+```javascript
+{
+  id: Integer (PK, Auto-increment)
+  user_id: Integer (FK -> users.id, Requerido)
+  first_name: String (Requerido)
+  last_name: String (Requerido)
+  company: String (Opcional)
+  phone: String (Opcional)
+  email: String (Requerido)
+  createdAt: DateTime (Auto)
+  updatedAt: DateTime (Auto)
+
+  // Constraint único por usuario
+  UNIQUE(user_id, email)
+}
+```
+
+#### 4. Categories (Categorías) - Auto-referencial
+```javascript
+{
+  id: Integer (PK)
+  user_id: Integer (FK -> users.id, Requerido)
+  name: String (Requerido)
+  description: String (Opcional)
+  parent_id: Integer (FK -> categories.id, Opcional)
+  level: Integer (Default: 0, 0=raíz, 1=subcategoría, etc.)
+  createdAt: DateTime (Auto)
+  updatedAt: DateTime (Auto)
+}
+```
+
+**Ejemplo de jerarquía:**
+```
+id=1, name="Suministros para Cerveza", parent_id=null, level=0
+id=2, name="Lúpulos", parent_id=1, level=1
+id=3, name="Lúpulos Americanos", parent_id=2, level=2
+id=4, name="Maltas", parent_id=1, level=1
+```
+
+#### 5. Products (Productos)
+```javascript
+{
+  id: Integer (PK)
+  user_id: Integer (FK -> users.id, Requerido)
+  name: String (Requerido)
+  description: String (Opcional)
+  selling_price: Decimal (Requerido) // Precio de venta
+  category_id: Integer (FK -> categories.id)
+  has_variants: Boolean (Default: false)
+  createdAt: DateTime (Auto)
+  updatedAt: DateTime (Auto)
+}
+```
+
+#### 6. Product_Variants (Variantes de Producto)
+```javascript
+{
+  id: Integer (PK)
+  user_id: Integer (FK -> users.id, Requerido)
+  product_id: Integer (FK -> products.id)
+  variant_name: String (Requerido) // "Default" para productos sin variantes
+  selling_price_modifier: Decimal (Default: 0) // +/- sobre selling_price
+  stock: Integer (Requerido) // ÚNICO lugar donde se maneja stock
+  attributes: Json (Opcional) // Atributos personalizados
+  min_stock_alert: Integer (Opcional) // Alerta de stock mínimo
+  enable_stock_alerts: Boolean (Default: true)
+  createdAt: DateTime (Auto)
+  updatedAt: DateTime (Auto)
+}
+```
+
+**Casos de uso**:
+- **Producto simple**: variant_name = "Default", maneja stock del producto
+- **Producto con variantes**: Cada variante (talle, color, etc.) con stock independiente
+
+#### 7. Variant_Suppliers (Proveedores por Variante)
+```javascript
+{
+  id: Integer (PK)
+  user_id: Integer (FK -> users.id, Requerido)
+  variant_id: Integer (FK -> product_variants.id)
+  supplier_id: Integer (FK -> suppliers.id)
+  purchase_price: Decimal (Requerido) // Precio de compra
+  is_primary_supplier: Boolean (Default: false)
+  createdAt: DateTime (Auto)
+  updatedAt: DateTime (Auto)
+
+  // Constraint único: un proveedor por variante por usuario
+  UNIQUE(user_id, variant_id, supplier_id)
+}
+```
+
+## Decisiones de Diseño Importantes
+
+### 1. Tablas Separadas para Clientes y Proveedores
+**Decisión**: Crear tablas separadas `customers` y `suppliers` con estructura idéntica.
+
+**Beneficios**:
+- ✅ Clara separación de responsabilidades
+- ✅ Identificación inmediata del rol del contacto
+- ✅ Permite lógica de negocio diferente en el futuro
+- ✅ Escalabilidad para agregar campos específicos
+
+### 2. Control de Stock Solo en Variantes
+**Decisión**: El stock se maneja únicamente a nivel de variantes de producto.
+
+**Implementación**:
+- **Productos SIN variantes**: Se crea automáticamente una **variante DEFAULT**
+- **Productos CON variantes**: Cada variante maneja su propio stock
+- La variante default permite definir stock y stock mínimo para productos simples
+
+**Rationale**:
+- Consistencia: toda la lógica de stock está centralizada en `product_variants`
+- Flexibilidad: permite evolucionar de producto simple a producto con variantes
+- Simplicidad: un solo lugar para consultar stock independientemente del tipo de producto
+
+### 3. Jerarquía de Categorías Auto-referencial
+**Decisión**: Usar tabla auto-referencial para categorías con múltiples niveles.
+
+**Beneficios**:
+- ✅ Flexibilidad completa en la estructura
+- ✅ Soporte para categorías anidadas ilimitadas
+- ✅ Fácil navegación y organización
+
+### 4. Múltiples Proveedores por Variante
+**Decisión**: Permitir múltiples proveedores por variante con precios diferentes.
+
+**Beneficios**:
+- ✅ Comparación de precios
+- ✅ Proveedores de respaldo
+- ✅ Optimización de costos
+
+## Lógica de Negocio: Productos y Variantes
+
+### Flujo para Productos Sin Variantes
+1. **Creación del producto**: Se crea con `has_variants = false`
+2. **Variante automática**: El sistema crea una variante con:
+   - `variant_name = "Default"`
+   - `selling_price_modifier = 0`
+   - `stock` y `min_stock_alert` definidos por el usuario
+3. **Gestión de stock**: Todo el stock se maneja en la variante default
+
+### Flujo para Productos Con Variantes
+1. **Creación del producto**: Se crea con `has_variants = true`
+2. **Variantes personalizadas**: El usuario crea variantes específicas:
+   - Ejemplo: "Talle S", "Talle M", "Talle L"
+   - Cada una con stock y alertas independientes
+3. **Stock distribuido**: Cada variante maneja su propio inventario
+
+### Ventajas de esta Aproximación
+✅ **Consistencia**: Siempre consultar stock en `product_variants`
+✅ **Escalabilidad**: Fácil migración de producto simple a producto con variantes
+✅ **Flexibilidad**: Diferentes precios, stock y alertas por variante
+✅ **Simplicidad en queries**: Un solo lugar para obtener información de stock
+
+### Ejemplo Práctico
+```sql
+-- Obtener stock total de un producto (con o sin variantes)
+SELECT SUM(pv.stock) as total_stock
+FROM product_variants pv 
+WHERE pv.product_id = :product_id AND pv.user_id = :user_id;
+
+-- Obtener productos con stock bajo
+SELECT p.name, pv.variant_name, pv.stock, pv.min_stock_alert
+FROM products p
+JOIN product_variants pv ON p.id = pv.product_id
+WHERE pv.stock <= pv.min_stock_alert 
+  AND pv.enable_stock_alerts = true
+  AND p.user_id = :user_id;
+```
+
+## Funcionalidades Principales
+
+### Gestión de Usuarios
+- Registro y autenticación
+- Verificación de email
+- Gestión de perfil de empresa
+
+### Gestión de Contactos
+- **Clientes**: Gestión completa con información de contacto y empresa
+- **Proveedores**: Gestión completa con información de contacto y empresa
+- Aislamiento de datos por usuario
+
+### Gestión de Inventario
+- **Categorías**: Jerarquía flexible multi-nivel
+- **Productos**: Información básica y precio de venta
+- **Variantes**: Control detallado de stock, precios y atributos
+  - **Variante Default**: Automática para productos sin variantes
+  - **Variantes Personalizadas**: Para productos con múltiples opciones
+- **Stock Centralizado**: Toda la gestión de inventario en `product_variants`
+- **Alertas de Stock**: Configurables por variante (incluyendo default)
+
+### Gestión de Proveedores
+- Múltiples proveedores por producto/variante
+- Precios de compra diferenciados
+- Proveedor principal por variante
+
+## Tecnologías Utilizadas
+
+### Backend
+- **Node.js** con **Express.js**
+- **Prisma ORM** para manejo de base de datos
+- **PostgreSQL** como base de datos
+- **express-validator** para validaciones
+- Rutas CRUD completas implementadas
+
+### Base de Datos
+- **PostgreSQL** con esquema multi-tenant
+- Relaciones complejas con integridad referencial
+- Constraints únicos por usuario
+
+## Próximos Pasos Sugeridos
+
+### Backend (API)
+1. **Pendiente Inmediato**
+   - **Paginación** (en desarrollo)
+     - Implementar para productos, clientes, proveedores
+     - Parámetros: `?page=1&limit=20`
+     - Response con metadata de paginación
+     - ¿Categorías? - Posiblemente innecesario (suelen ser pocas)
+
+2. **Autenticación y Autorización**
+   - Implementar JWT tokens
+   - Middleware de autenticación
+   - Control de acceso por usuario
+
+3. **Funcionalidades Avanzadas**
+   - Sistema de alertas de stock bajo
+   - Reportes de inventario
+   - Historial de movimientos de stock
+   - API para búsquedas y filtros
+
+4. **Optimizaciones**
+   - Índices de base de datos
+   - Caché para consultas frecuentes
+
+### Casos de uso específicos:
+- **Asignar proveedor principal**: Automáticamente des-marcar otros como principales
+- **Comparar precios**: Obtener todos los proveedores de una variante con sus precios
+- **Gestión de proveedores**: Ver todas las variantes que suministra un proveedor
+- **Actualización restrictiva**: Solo precio y flag principal pueden modificarse
+- **Cambio de proveedor/variante**: Requiere eliminar relación existente y crear nueva
+
+### Lógica de Negocio Variant-Suppliers
+```javascript
+// ✅ Permitido en UPDATE
+{
+  purchase_price: Decimal, // Nuevo precio de compra
+  is_primary_supplier: Boolean // Cambiar si es proveedor principal
+}
+
+// ❌ NO permitido en UPDATE - Requiere DELETE + POST
+{
+  variant_id: Integer, // Cambiar variante
+  supplier_id: Integer, // Cambiar proveedor
+  user_id: Integer // Siempre del usuario autenticado
+}
+```
+
+**Razón**: Mantener integridad de la relación y evitar confusión en históricos de precios.
+
+### Desestructuración para Updates Parciales
+```javascript
+// JavaScript permite desestructuración sin errores
+const { purchase_price, is_primary_supplier } = req.body;
+
+// Si alguna propiedad no existe, será undefined
+// purchase_price = undefined (si no se envía)
+// is_primary_supplier = true (si se envía)
+
+// Construir objeto de actualización dinámico
+const updateData = {};
+if (purchase_price !== undefined) updateData.purchase_price = purchase_price;
+if (is_primary_supplier !== undefined) updateData.is_primary_supplier = is_primary_supplier;
+```
+
+### Frontend
+1. **Interfaz de Usuario**
+   - Dashboard principal
+   - Gestión de inventario
+   - Gestión de contactos
+   - Reportes y analíticas
+
+2. **Experiencia de Usuario**
+   - Diseño responsive
+   - Interfaz intuitiva
+   - Notificaciones en tiempo real
+
+### Despliegue
+1. **Infraestructura**
+   - Configuración de servidor
+   - Base de datos en producción
+   - Variables de entorno
+   - Monitoreo y logs
+
+## Notas Técnicas Multi-Tenant
+
+### Prisma Schema
+- Generador configurado para output personalizado
+- **Todas las relaciones incluyen user_id** para aislamiento de datos
+- Constraints únicos combinados con user_id (ej: `@@unique([user_id, email])`)
+- Cascading deletes que respetan el tenant
+
+### Validaciones
+- express-validator implementado en todas las rutas
+- **Validación automática de user_id** en todas las operaciones
+- Middleware para verificar ownership de recursos
+- Sanitización de parámetros con control de tenant
+
+### Seguridad Multi-Tenant
+- **Aislamiento garantizado**: user_id en todas las tablas
+- **Queries automáticamente filtradas** por tenant
+- **Relaciones verificadas**: constraints que previenen referencias cruzadas
+- Preparado para implementar middleware de autenticación JWT con extracción de user_id
+
+---
+
+**Última actualización**: Agosto 2025
+**Estado del proyecto**: API base completada, variant-suppliers en desarrollo, listo para frontend e implementaciones avanzadas
