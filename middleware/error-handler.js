@@ -18,7 +18,13 @@ const ErrorHandlerMiddleware = (err, req, res, next) => {
         customError.msg = `${field} id given is not valid (for table ${err.meta.modelName})`;
     }
 
-    //res.status(500).json({err});
+    // column does not exists prisma
+    if (err.code && err.code === 'P2010') {
+        customError.msg = `${err.meta.message}`;
+    }
+
+
+    //res.status(500).json({err, message: err.message});
     res.status(customError.statusCode).json({ msg: customError.msg });
 }
 

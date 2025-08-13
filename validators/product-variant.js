@@ -9,14 +9,12 @@ const productVariantCreateValidation = [
       .withMessage('Product name must be between 3 and 50 characters'),
 
     body('selling_price_modifier')
-    .notEmpty()
-    .withMessage('Must provide a selling price modifier')
-    .isFloat({ min: -99999.99, max: 99999999.99 })
-    .withMessage('Price must be a float between -99999.99 and 99,999,999.99'),
+      .optional()
+      .isFloat({ min: -99999.99, max: 99999999.99 })
+      .withMessage('Price must be a float between -99999.99 and 99,999,999.99'),
 
     body('stock')
-    .notEmpty()
-    .withMessage('Must provide stock')
+      .optional()
       .isInt({ min: 0, max: 99999 })
       .withMessage('Stock has to be a number between 0 and 99999'),
 
@@ -26,7 +24,12 @@ const productVariantCreateValidation = [
 
     body('enable_stock_alerts')
       .optional()
-      .isBoolean()
+      .isBoolean(),
+
+    body("product_id")
+      .not()
+      .exists()
+      .withMessage('product_id cannot be modified'),
 
 ];
 
@@ -53,7 +56,12 @@ const productVariantUpdateValidation = [
 
     body('enable_stock_alerts')
       .optional()
-      .isBoolean()
+      .isBoolean(),
+
+    body("product_id")
+      .not()
+      .exists()
+      .withMessage('product_id cannot be modified'),
 ];
 
 module.exports = {

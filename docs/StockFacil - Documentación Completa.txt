@@ -28,6 +28,20 @@
     - `PATCH /variant-suppliers/:id` - Actualizar precio/proveedor principal
     - `DELETE /variant-suppliers/:id` - Eliminar relación
 - Validaciones con express-validator implementadas
+- **Autenticación JWT implementada**:
+  - Login y register (rutas públicas)
+  - Todas las demás rutas requieren autenticación (incluyendo update de usuario)
+  - Middleware de autorización configurado
+  - Extracción automática de user_id del token
+- **Query optimizada para findAll productos**:
+  - Raw SQL con performance optimizada para listados
+  - Formato consistente con findById
+  - JSON aggregation para variantes
+  - Cast explícito para evitar BigInt serialization errors
+- **Formato de respuesta unificado**:
+  - Conversión automática de Decimal a Number en respuestas
+  - Schema de Swagger actualizado con tipo 'number' para precios
+  - Consistencia total entre findAll y findById
 
 🔄 **En desarrollo**:
 - Paginación para productos, clientes, proveedores
@@ -82,8 +96,8 @@ La aplicación utiliza arquitectura **multi-tenant** donde cada usuario (tenant)
   business_name: String (Opcional)
   is_active: Boolean (Default: true)
   email_verified: Boolean (Default: false)
-  createdAt: DateTime (Auto)
-  updatedAt: DateTime (Auto)
+  created_at: DateTime (Auto)
+  updated_at: DateTime (Auto)
 }
 ```
 
@@ -97,8 +111,8 @@ La aplicación utiliza arquitectura **multi-tenant** donde cada usuario (tenant)
   company: String (Opcional)
   phone: String (Opcional)
   email: String (Requerido)
-  createdAt: DateTime (Auto)
-  updatedAt: DateTime (Auto)
+  created_at: DateTime (Auto)
+  updated_at: DateTime (Auto)
 
   // Constraint único por usuario
   UNIQUE(user_id, email)
@@ -115,8 +129,8 @@ La aplicación utiliza arquitectura **multi-tenant** donde cada usuario (tenant)
   company: String (Opcional)
   phone: String (Opcional)
   email: String (Requerido)
-  createdAt: DateTime (Auto)
-  updatedAt: DateTime (Auto)
+  created_at: DateTime (Auto)
+  updated_at: DateTime (Auto)
 
   // Constraint único por usuario
   UNIQUE(user_id, email)
@@ -132,8 +146,8 @@ La aplicación utiliza arquitectura **multi-tenant** donde cada usuario (tenant)
   description: String (Opcional)
   parent_id: Integer (FK -> categories.id, Opcional)
   level: Integer (Default: 0, 0=raíz, 1=subcategoría, etc.)
-  createdAt: DateTime (Auto)
-  updatedAt: DateTime (Auto)
+  created_at: DateTime (Auto)
+  updated_at: DateTime (Auto)
 }
 ```
 
@@ -152,11 +166,10 @@ id=4, name="Maltas", parent_id=1, level=1
   user_id: Integer (FK -> users.id, Requerido)
   name: String (Requerido)
   description: String (Opcional)
-  selling_price: Decimal (Requerido) // Precio de venta
+  selling_price: Decimal (Requerido) // Precio de venta - @db.Decimal(10, 2)
   category_id: Integer (FK -> categories.id)
-  has_variants: Boolean (Default: false)
-  createdAt: DateTime (Auto)
-  updatedAt: DateTime (Auto)
+  created_at: DateTime (Auto)
+  updated_at: DateTime (Auto)
 }
 ```
 
@@ -167,13 +180,17 @@ id=4, name="Maltas", parent_id=1, level=1
   user_id: Integer (FK -> users.id, Requerido)
   product_id: Integer (FK -> products.id)
   variant_name: String (Requerido) // "Default" para productos sin variantes
-  selling_price_modifier: Decimal (Default: 0) // +/- sobre selling_price
-  stock: Integer (Requerido) // ÚNICO lugar donde se maneja stock
+  is_default: Boolean (Default: false) // Identificador confiable de variante default
+  selling_price_modifier: Decimal (Default: 0) // +/- sobre selling_price - @db.Decimal(10, 2)
+  stock: Integer (Default: 0) // ÚNICO lugar donde se maneja stock
   attributes: Json (Opcional) // Atributos personalizados
-  min_stock_alert: Integer (Opcional) // Alerta de stock mínimo
+  min_stock_alert: Integer (Default: 0) // Alerta de stock mínimo
   enable_stock_alerts: Boolean (Default: true)
-  createdAt: DateTime (Auto)
-  updatedAt: DateTime (Auto)
+  created_at: DateTime (Auto)
+  updated_at: DateTime (Auto)
+
+  // Nota: El constraint único para is_default se debe implementar a nivel de aplicación
+  // ya que PostgreSQL no soporta partial unique constraints con Prisma
 }
 ```
 
@@ -188,10 +205,10 @@ id=4, name="Maltas", parent_id=1, level=1
   user_id: Integer (FK -> users.id, Requerido)
   variant_id: Integer (FK -> product_variants.id)
   supplier_id: Integer (FK -> suppliers.id)
-  purchase_price: Decimal (Requerido) // Precio de compra
+  purchase_price: Decimal (Requerido) // Precio de compra - @db.Decimal(10, 2)
   is_primary_supplier: Boolean (Default: false)
-  createdAt: DateTime (Auto)
-  updatedAt: DateTime (Auto)
+  created_at: DateTime (Auto)
+  updated_at: DateTime (Auto)
 
   // Constraint único: un proveedor por variante por usuario
   UNIQUE(user_id, variant_id, supplier_id)
@@ -238,28 +255,156 @@ id=4, name="Maltas", parent_id=1, level=1
 - ✅ Proveedores de respaldo
 - ✅ Optimización de costos
 
+### 5. Autenticación y Autorización
+**Decisión**: Implementación completa de JWT con protección en todas las rutas.
+
+**Implementación**:
+- **Rutas públicas**: Solo `POST /auth/login` y `POST /auth/register`
+- **Rutas protegidas**: Todas las demás (incluyendo update de usuario)
+- **Middleware**: Extracción automática de user_id del token JWT
+- **Seguridad multi-tenant**: user_id siempre validado en cada operación
+
+### 6. Query Optimization para findAll Products
+**Decisión**: Usar raw SQL con JSON aggregation para máximo rendimiento.
+
+**Implementación**:
+- Raw SQL query para findAll (performance crítica con muchos productos)
+- Prisma para findById (menos crítico, más legible)
+- Formato consistente entre ambos endpoints
+- Cast explícito para evitar BigInt serialization errors
+- JSON aggregation para incluir variantes en una sola query
+
+**Benefits**:
+- ✅ **Performance**: Una sola query vs múltiples roundtrips
+- ✅ **Consistencia**: Mismo formato de respuesta en findAll y findById
+- ✅ **Escalabilidad**: Optimizado para manejar grandes volúmenes de productos
+- ✅ **Mantenibilidad**: Estructura clara y documentada
+
+### 7. Formato de Respuesta Unificado para Precios
+**Decisión**: Convertir todos los campos Decimal a Number en las respuestas de la API.
+
+**Implementación**:
+- Middleware/utilidad para convertir `selling_price`, `selling_price_modifier`, `purchase_price` de string a number
+- Schema de Swagger actualizado con tipo 'number' para todos los precios
+- Consistencia total entre base de datos (Decimal) y API (Number)
+
+**Rationale**:
+- ✅ **UX mejorada**: Frontend recibe números directamente
+- ✅ **Precisión mantenida**: Base de datos sigue usando Decimal
+- ✅ **Consistencia**: Todos los endpoints devuelven el mismo formato
+- ✅ **Compatibilidad**: Funciona perfectamente con JSON y JavaScript
+
 ## Lógica de Negocio: Productos y Variantes
 
 ### Flujo para Productos Sin Variantes
-1. **Creación del producto**: Se crea con `has_variants = false`
+1. **Creación del producto**: Se crea normalmente
 2. **Variante automática**: El sistema crea una variante con:
    - `variant_name = "Default"`
    - `selling_price_modifier = 0`
-   - `stock` y `min_stock_alert` definidos por el usuario
+   - `is_default = true`
+   - `stock` y `min_stock_alert` definidos por el usuario (default 0)
 3. **Gestión de stock**: Todo el stock se maneja en la variante default
 
 ### Flujo para Productos Con Variantes
-1. **Creación del producto**: Se crea con `has_variants = true`
+1. **Creación del producto**: Se crea normalmente
 2. **Variantes personalizadas**: El usuario crea variantes específicas:
    - Ejemplo: "Talle S", "Talle M", "Talle L"
-   - Cada una con stock y alertas independientes
+   - Cada una con `is_default = false`
+   - Stock y alertas independientes (stock default 0)
 3. **Stock distribuido**: Cada variante maneja su propio inventario
 
+### Cálculo de has_variants en Frontend
+**Decisión**: Eliminar `has_variants` del backend y calcularlo en el cliente.
+
+```javascript
+// En el frontend
+const hasVariants = product.variants.some(variant => !variant.is_default);
+```
+
+**Ventajas**:
+- ✅ Query más simple y rápida
+- ✅ Menos redundancia de datos
+- ✅ Lógica trivial fácil de implementar en cliente
+
+### Formato de Respuesta Unificado
+
+Tanto `findAll` como `findById` devuelven el mismo formato con **variante default siempre incluida**:
+
+#### Producto CON variantes personalizadas:
+```json
+{
+    "id": 12,
+    "name": "Product1",
+    "selling_price": 100.00,
+    "description": null,
+    "category": {
+        "id": 4,
+        "name": "Categoria1"
+    },
+    "created_at": "2025-08-12T22:01:33.012Z",
+    "updated_at": "2025-08-12T22:01:33.012Z",
+    "variants": [
+        {
+            "id": 11,
+            "variant_name": "Talle S",
+            "stock": 25,
+            "selling_price_modifier": 0.00,
+            "min_stock_alert": 5,
+            "enable_stock_alerts": true,
+            "is_default": false,
+            "attributes": null
+        },
+        {
+            "id": 12,
+            "variant_name": "Talle M", 
+            "stock": 1,
+            "selling_price_modifier": 10.00,
+            "min_stock_alert": 3,
+            "enable_stock_alerts": true,
+            "is_default": false,
+            "attributes": null
+        }
+    ],
+    "total_stock": 26
+}
+```
+
+#### Producto SIN variantes personalizadas (solo default):
+```json
+{
+    "id": 15,
+    "name": "Product Simple",
+    "selling_price": 50.00,
+    "description": null,
+    "category": {
+        "id": 4,
+        "name": "Categoria1"
+    },
+    "created_at": "2025-08-12T22:01:33.012Z",
+    "updated_at": "2025-08-12T22:01:33.012Z",
+    "variants": [
+        {
+            "id": 20,
+            "variant_name": "Default",
+            "stock": 100,
+            "selling_price_modifier": 0.00,
+            "min_stock_alert": 10,
+            "enable_stock_alerts": true,
+            "is_default": true,
+            "attributes": null
+        }
+    ],
+    "total_stock": 100
+}
+```
+
 ### Ventajas de esta Aproximación
-✅ **Consistencia**: Siempre consultar stock en `product_variants`
+✅ **Consistencia absoluta**: Siempre consultar stock en `product_variants`, incluso para productos "simples"
 ✅ **Escalabilidad**: Fácil migración de producto simple a producto con variantes
 ✅ **Flexibilidad**: Diferentes precios, stock y alertas por variante
 ✅ **Simplicidad en queries**: Un solo lugar para obtener información de stock
+✅ **Formato unificado**: Misma estructura en todos los endpoints
+✅ **Lógica centralizada**: No hay casos especiales para productos "sin variantes"
 
 ### Ejemplo Práctico
 ```sql
@@ -275,14 +420,24 @@ JOIN product_variants pv ON p.id = pv.product_id
 WHERE pv.stock <= pv.min_stock_alert 
   AND pv.enable_stock_alerts = true
   AND p.user_id = :user_id;
+
+-- Determinar si un producto tiene variantes personalizadas
+SELECT p.*, 
+       CASE WHEN EXISTS(
+         SELECT 1 FROM product_variants pv 
+         WHERE pv.product_id = p.id AND pv.is_default = false
+       ) THEN true ELSE false END as has_custom_variants
+FROM products p 
+WHERE p.user_id = :user_id;
 ```
 
 ## Funcionalidades Principales
 
 ### Gestión de Usuarios
-- Registro y autenticación
+- Registro y autenticación con JWT
 - Verificación de email
 - Gestión de perfil de empresa
+- Todas las rutas protegidas excepto login/register
 
 ### Gestión de Contactos
 - **Clientes**: Gestión completa con información de contacto y empresa
@@ -293,7 +448,7 @@ WHERE pv.stock <= pv.min_stock_alert
 - **Categorías**: Jerarquía flexible multi-nivel
 - **Productos**: Información básica y precio de venta
 - **Variantes**: Control detallado de stock, precios y atributos
-  - **Variante Default**: Automática para productos sin variantes
+  - **Variante Default**: Automática para productos sin variantes personalizadas
   - **Variantes Personalizadas**: Para productos con múltiples opciones
 - **Stock Centralizado**: Toda la gestión de inventario en `product_variants`
 - **Alertas de Stock**: Configurables por variante (incluyendo default)
@@ -310,12 +465,15 @@ WHERE pv.stock <= pv.min_stock_alert
 - **Prisma ORM** para manejo de base de datos
 - **PostgreSQL** como base de datos
 - **express-validator** para validaciones
+- **JWT** para autenticación y autorización
 - Rutas CRUD completas implementadas
+- **Raw SQL queries** para optimización de performance en listados
 
 ### Base de Datos
 - **PostgreSQL** con esquema multi-tenant
 - Relaciones complejas con integridad referencial
 - Constraints únicos por usuario
+- JSON aggregation para consultas optimizadas
 
 ## Próximos Pasos Sugeridos
 
@@ -325,22 +483,17 @@ WHERE pv.stock <= pv.min_stock_alert
      - Implementar para productos, clientes, proveedores
      - Parámetros: `?page=1&limit=20`
      - Response con metadata de paginación
-     - ¿Categorías? - Posiblemente innecesario (suelen ser pocas)
 
-2. **Autenticación y Autorización**
-   - Implementar JWT tokens
-   - Middleware de autenticación
-   - Control de acceso por usuario
-
-3. **Funcionalidades Avanzadas**
+2. **Funcionalidades Avanzadas**
    - Sistema de alertas de stock bajo
    - Reportes de inventario
    - Historial de movimientos de stock
    - API para búsquedas y filtros
 
-4. **Optimizaciones**
+3. **Optimizaciones**
    - Índices de base de datos
    - Caché para consultas frecuentes
+   - Monitoring de performance
 
 ### Casos de uso específicos:
 - **Asignar proveedor principal**: Automáticamente des-marcar otros como principales
@@ -409,19 +562,32 @@ if (is_primary_supplier !== undefined) updateData.is_primary_supplier = is_prima
 - Constraints únicos combinados con user_id (ej: `@@unique([user_id, email])`)
 - Cascading deletes que respetan el tenant
 
-### Validaciones
+### Validaciones y Seguridad
 - express-validator implementado en todas las rutas
 - **Validación automática de user_id** en todas las operaciones
 - Middleware para verificar ownership de recursos
 - Sanitización de parámetros con control de tenant
+- **Limpieza de datos**: Prevención de modificación de campos protegidos
+  - Validación de campos permitidos en middleware (express-validator)
+  - Limpieza adicional en servicios para campos sensibles
+  - Protección contra modificación de: `user_id`, `id`, `createdAt`, `updatedAt`
+  - **Nota**: `updatedAt` se maneja automáticamente por Prisma (`@updatedAt`)
 
 ### Seguridad Multi-Tenant
 - **Aislamiento garantizado**: user_id en todas las tablas
 - **Queries automáticamente filtradas** por tenant
 - **Relaciones verificadas**: constraints que previenen referencias cruzadas
-- Preparado para implementar middleware de autenticación JWT con extracción de user_id
+- **JWT implementado**: Middleware de autenticación con extracción de user_id del token
+
+### Performance Optimizations
+- **Raw SQL para listados**: findAll products optimizado con raw queries
+- **Prisma para operaciones individuales**: findById mantiene sintaxis ORM
+- **JSON aggregation**: Variantes incluidas en una sola query
+- **Cast explícito**: Evita errores de serialización BigInt
+- **Conversión automática**: Decimal a Number en respuestas
+- **Índices**: Configurados para queries multi-tenant frecuentes
 
 ---
 
 **Última actualización**: Agosto 2025
-**Estado del proyecto**: API base completada, variant-suppliers en desarrollo, listo para frontend e implementaciones avanzadas
+**Estado del proyecto**: API base completada con autenticación JWT, variant-suppliers implementado, queries optimizadas, formato de respuesta unificado con conversión automática de precios, paginación en desarrollo, listo para funcionalidades avanzadas y frontend

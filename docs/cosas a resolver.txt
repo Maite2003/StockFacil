@@ -1,0 +1,6 @@
+cosas a resolver
+1. variantes de producto y stockm.cuando un producto no tiene variantes, el stock se lleva por lavariante default. pero si yo le agrego variantes a ese producto, el stock es la suma de los stock de las variantes, sin contar el default. deberia setear el stock de la variante efault a 0? cuando borro las variantes que habia creado, el stock vuelve a ser el de la variante default, a la cual le habia quedado un numero seteado (a menos que lo haya cambiado a cero)
+
+2. attributos de variantes?
+
+3. como hariamos para verficar que no estamos borrando la variante default? deberia poner un field is_default en variantes? Si un usuario puede normbrar una variante como "Default", verificar que una variante es default por el nombre no es confiable. 

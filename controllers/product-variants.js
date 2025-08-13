@@ -2,6 +2,7 @@ const { StatusCodes } = require('http-status-codes');
 const ProductVariantServices = require('../services/product-variant');
 
 const getAllProductVariants = async (req, res) => {
+    console.log(req.params);
     const productId = Number(req.params.productId)
     const variants = await ProductVariantServices.findAll(req.user.id, productId);
     res.status(StatusCodes.OK).json({variants, length: variants.length});
@@ -16,7 +17,8 @@ const getProductVariant = async (req, res) => {
 
 const createProductVariant = async (req, res) => {
     const productId = Number(req.params.productId);
-    const variant = await ProductVariantServices.create(req.user.id, productId, ...req.body);
+    console.log(`Product id es ${productId}`);
+    const variant = await ProductVariantServices.create(req.user.id, productId, req.body);
     res.status(StatusCodes.CREATED).json({variant}); 
 }
 

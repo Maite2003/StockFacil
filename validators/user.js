@@ -32,7 +32,12 @@ const userCreateValidation = [
     .optional()
     .trim()
     .isLength({ min: 2, max: 50 })
-    .withMessage('Business name must be between 2-50 characters')
+    .withMessage('Business name must be between 2-50 characters'),
+
+  body('password_hash')
+    .not()
+    .exists()
+    .withMessage('password_hash cannot be modified'),
 ];
 
 const userLoginValidation = [
@@ -85,8 +90,12 @@ const userUpdateValidation = [
 
   body('email_verified')
     .optional()
-    .isBoolean()
+    .isBoolean(),
 
+  body('password_hash')
+    .not()
+    .exists()
+    .withMessage('password_hash cannot be modified'),
 ];
 
 module.exports = {

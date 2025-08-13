@@ -33,44 +33,61 @@ class UserServices {
         return isMatch;
     }
 
-    static async beforeSave(userData) {
-        let processed = {};
+    static async beforeSave(data) {
+        const allowedFields = ['email', 'first_name',
+            'last_name', 'business_name', 'is_active', 'email_verified'
+        ];
+
+        const cleanData = {};
+        allowedFields.forEach(field => {
+            if (data[field] !== undefined) {
+            cleanData[field] = data[field];
+            }
+        });
         
         // Transform email
-        if (userData.email) {
-            processed.email = userData.email.toLowerCase().trim();
+        if (cleanData.email) {
+            cleanData.email = cleanData.email.toLowerCase().trim();
         }
 
         // Transform first name
-        if (userData.first_name) {
-            processed.first_name = capitalize(userData.first_name.toLowerCase().trim());
+        if (cleanData.first_name) {
+            cleanData.first_name = capitalize(cleanData.first_name.toLowerCase().trim());
         }
 
         // Transform last name
-        if (userData.last_name) {
-            processed.last_name = capitalize(userData.last_name.toLowerCase().trim());
+        if (cleanData.last_name) {
+            cleanData.last_name = capitalize(cleanData.last_name.toLowerCase().trim());
         }
         
-        if (userData.business_name) {
-            processed.business_name = capitalize(userData.business_name.trim());
+        if (cleanData.business_name) {
+            cleanData.business_name = capitalize(cleanData.business_name.trim());
         }
 
         // Hash password
-        if (userData.password) {
+        if (data.password) {
             const salt = await bcrypt.genSalt(10);
-            processed.password_hash = await bcrypt.hash(userData.password, salt);
+            cleanData.password_hash = await bcrypt.hash(data.password, salt);
         }
-
-        // Add timestamps
-        processed.updatedAt = new Date();
         
-        return processed;
+        return cleanData;
     }
 
     static async create(userData) {
         const processed = await UserServices.beforeSave(userData);
         const user = await prisma.user.create({
-            data: processed
+            data: processed,
+            select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                email: true,
+                business_name: true,
+                is_active: true,
+                email_verified: true,
+                created_at: true,
+                updated_at: true
+            }
         });
 
         // Remove password from response
@@ -104,17 +121,28 @@ class UserServices {
         try {
             const updatedUser = await prisma.user.update({
                 where: {id},
-                data: processed
+                data: processed,
+                select: {
+                    id: true,
+                    first_name: true,
+                    last_name: true,
+                    email: true,
+                    business_name: true,
+                    is_active: true,
+                    email_verified: true,
+                    created_at: true,
+                    updated_at: true
+                }
             });
+            const token = this.createJWT(updatedUser.id, updatedUser.first_name, updatedUser.last_name);
+        
+            return {
+                user: {name: updatedUser.first_name},
+                token
+            };
         } catch (error) {
             throw new NotFoundError(`User with id ${id} does not exist`);
         }
-        const token = this.createJWT(updatedUser.id, updatedUser.first_name, updatedUser.last_name);
-        
-        return {
-            user: {name: updatedUser.first_name},
-            token
-        };
     }
 
     static async delete(id) {
@@ -129,14 +157,36 @@ class UserServices {
 
     static async findByEmail(email) {
         const user = await prisma.user.findUnique({
-            where: {email}
+            where: {email},
+            select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                email: true,
+                business_name: true,
+                is_active: true,
+                email_verified: true,
+                created_at: true,
+                updated_at: true
+            }
         });
         return user;
     }
 
     static async findById(id) {
         const user = await prisma.user.findUnique({
-            where: {id}
+            where: {id},
+            select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                email: true,
+                business_name: true,
+                is_active: true,
+                email_verified: true,
+                created_at: true,
+                updated_at: true
+            }
         });
         return user;
     }

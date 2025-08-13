@@ -8,7 +8,8 @@ const getVariantSupplier = async (req, res) => {
 }
 
 const createVariantSupplier = async (req, res) => {
-    const variantSupplier = await VariantSupplierServices.create(req.user.id, {...req.body});
+    const {supplier_id, variant_id, ...data} = req.body;
+    const variantSupplier = await VariantSupplierServices.create(req.user.id, supplier_id, variant_id, data);
     res.status(StatusCodes.CREATED).json({ variantSupplier });
 }
 
@@ -29,7 +30,7 @@ const updateVariantSupplier = async (req, res) => {
 
 const deleteVariantSupplier = async (req, res) => {
     const variantSupplierId = Number(req.params.id);
-    VariantSupplierServices.delete(req.user.id, variantSupplierId);
+    await VariantSupplierServices.delete(req.user.id, variantSupplierId);
     res.status(StatusCodes.NO_CONTENT).send();
 }
 

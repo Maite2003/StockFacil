@@ -13,8 +13,9 @@ const {
     basicPersonCreateValidator,
     basicPersonUpdateValidator
 } = require('../validators/customer-supplier');
+const notValidFields = require('../validators/not-valid');
 
-router.route('/').get(getAllCustomers).post(basicPersonCreateValidator, handleValidationErrors, createCustomer);
-router.route('/:id').get(getCustomer).patch(basicPersonUpdateValidator, handleValidationErrors, updateCustomer).delete(deleteCustomer);
+router.route('/').get(getAllCustomers).post(notValidFields, basicPersonCreateValidator, handleValidationErrors, createCustomer);
+router.route('/:id').get(getCustomer).patch(notValidFields, basicPersonUpdateValidator, handleValidationErrors, updateCustomer).delete(deleteCustomer);
 
 module.exports = router;

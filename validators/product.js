@@ -38,7 +38,12 @@ const productCreateValidation = [
 
     body('enable_stock_alerts')
       .optional()
-      .isBoolean()
+      .isBoolean(),
+
+    body('has_variants')
+      .not()
+      .exists()
+      .withMessage('has_variants cannot be modified')
 ]
 
 const productUpdateValidation = [
@@ -77,7 +82,12 @@ const productUpdateValidation = [
 
     body('enable_stock_alerts')
       .optional()
-      .isBoolean()
+      .isBoolean(),
+
+    body('has_variants')
+      .not()
+      .exists()
+      .withMessage('has_variants cannot be modified')
 ]   
 
 module.exports = {

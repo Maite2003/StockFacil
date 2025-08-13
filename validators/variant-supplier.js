@@ -34,7 +34,16 @@ const variantSupplierUpdateValidation = [
     body('is_primary_supplier')
       .optional()
       .isBoolean()
-      .withMessage('is_orimary_supplier must be boolean')
+      .withMessage('is_orimary_supplier must be boolean'),
+
+    body('supplier_id')
+      .not()
+      .exists('supplier_id cannot be modified'),
+
+    body('variant_id')
+      .not()
+      .exists()
+      .withMessage('variant_id cannot be modified'),
 ]
 
 module.exports = {

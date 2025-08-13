@@ -3,36 +3,67 @@ const { capitalize } = require('../utils/stringUtils');
 const { NotFoundError } = require('../errors');
 
 class CustomerServices {
-    static beforeSave(customerData) {
-        if (customerData.email) {
-            customerData.email = customerData.email.toLowerCase().trim();
+    static beforeSave(data) {
+        const allowedFields = ['first_name', 'last_name', 'company', 'phone',
+            'email'
+        ];
+
+        const cleanData = {};
+        allowedFields.forEach(field => {
+            if (data[field] !== undefined) {
+            cleanData[field] = data[field];
+            }
+        });
+
+        if (cleanData.email) {
+            cleanData.email = cleanData.email.toLowerCase().trim();
         }
 
-        if (customerData.first_name) {
-            customerData.first_name = capitalize(customerData.first_name.trim().toLowerCase());
+        if (cleanData.first_name) {
+            cleanData.first_name = capitalize(cleanData.first_name.trim().toLowerCase());
         }
 
-        if (customerData.last_name) {
-            customerData.last_name = capitalize(customerData.last_name.trim().toLowerCase());
+        if (cleanData.last_name) {
+            cleanData.last_name = capitalize(cleanData.last_name.trim().toLowerCase());
         }
 
-        if (customerData.company) {
-            customerData.company = capitalize(customerData.company.trim());
+        if (cleanData.company) {
+            cleanData.company = capitalize(cleanData.company.trim());
         }
 
-        return customerData;
+        return cleanData;
     }
     
     static async findAll(userId) {
         const customers = await prisma.customer.findMany({
-            where: {user_id: userId}
+            where: {user_id: userId},
+            select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                email: true,
+                phone: true,
+                company: true,
+                created_at: true,
+                updated_at: true,
+            }
         });
         return customers;
     }
 
     static async findById(userId, id) {
-        const customer = await prisma.customer.findUnique({
-            where: {user_id: userId, id}
+        const customer = await prisma.customer.findFirst({
+            where: {user_id: userId, id},
+            select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                email: true,
+                phone: true,
+                company: true,
+                created_at: true,
+                updated_at: true,
+            }
         });
         if (!customer) {
             throw new (`Customer with id ${id} does not exists`);
@@ -43,32 +74,56 @@ class CustomerServices {
     static async create(userId, customerData) {
         const processed = this.beforeSave(customerData);
         const customer = await prisma.customer.create({
-            data: {user_id: userId, ...processed}
+            data: {user_id: userId, ...processed},
+            select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                email: true,
+                phone: true,
+                company: true,
+                created_at: true,
+                updated_at: true,
+            }
         });
         return customer;
     }
 
     static async update(userId, customerId, customerData) {
-        const processed = this.beforeSave(customerData);
-        try {
-            const updatedCustomer = await prisma.customer.update({
-                where: {user_id: userId, id: customerId},
-                data: processed
-            });
-            return updatedCustomer;
-        } catch (error) {
+        let customer = await prisma.customer.findFirst({
+            where: {id: customerId, user_id: userId}
+        });
+        if (!customer) {
             throw new NotFoundError(`Customer with id ${customerId} does not exist`);
         }
+        const processed = this.beforeSave(customerData);
+        customer = await prisma.customer.update({
+            where: {user_id: userId, id: customerId},
+            data: processed,
+            select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                email: true,
+                phone: true,
+                company: true,
+                created_at: true,
+                updated_at: true,
+            }
+        });
+        return customer;
     }
 
     static async delete(userId, customerId) {
-        try {
-            await prisma.customer.delete({
-                where: {user_id: userId, id: customerId}
-            })
-        } catch(error) {
-            throw new NotFoundError(`Customer with id ${customerId} does not exist`)
+        let customer = await prisma.customer.findFirst({
+            where: {id: customerId, user_id: userId}
+        });
+        if (!customer) {
+            throw new NotFoundError(`Customer with id ${customerId} does not exist`);
         }
+        await prisma.customer.delete({
+            where: {id: customerId}
+        });
     }
 }
 

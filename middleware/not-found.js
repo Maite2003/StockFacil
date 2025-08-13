@@ -1,9 +1,12 @@
 
 const { StatusCodes } = require('http-status-codes'); 
-const { NotFoundError } = require('../errors');
 
-const NotFoundMiddleware = (req, res) => {
-    throw new NotFoundError('Route not found');
+const NotFoundMiddleware = (req, res, next) => {
+    res.status(StatusCodes.NOT_FOUND).json({ 
+        message: 'Route not found',
+        url: req.originalUrl,
+        method: req.method
+    });
 }
 
 module.exports = NotFoundMiddleware;

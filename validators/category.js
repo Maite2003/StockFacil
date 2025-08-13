@@ -18,11 +18,6 @@ const categoryCreateValidation = [
       .optional()
       .isInt()
       .withMessage("Parent id must be an int"),
-
-    body("level")
-      .optional()
-      .isInt()
-      .withMessage("Category level must be int")
 ];
 
 const categoryUpdateValidation = [
@@ -37,6 +32,11 @@ const categoryUpdateValidation = [
       .trim()
       .isLength({ max: 200 })
       .withMessage('Category description must be less than 200 characters'),
+
+    body("parent_id")
+      .optional()
+      .isInt()
+      .withMessage("Parent id must be an int"),
 ];
 
 module.exports = {
