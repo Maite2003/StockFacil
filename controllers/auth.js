@@ -1,6 +1,5 @@
 const { StatusCodes } = require('http-status-codes');
 const UserServices = require('../services/user');
-const { UnauthenticatedError } = require('../errors');
 
 const register = async (req, res) => {
     const data = await UserServices.register({...req.body});

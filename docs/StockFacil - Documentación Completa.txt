@@ -1,99 +1,144 @@
-# StockFacil - Documentación Completa del Proyecto
+# StockFacil - Complete Project Documentation
 
-## Información General del Proyecto
+## General Project Information
 
-### Descripción
-**StockFacil** es una aplicación web para la gestión integral de inventarios, clientes y proveedores de empresas. Permite a las empresas mantener control completo sobre su stock, precios, relaciones comerciales y estructura de productos con variantes.
+### Description
+**StockFacil** is a comprehensive web application for inventory, customer and supplier management for businesses. It allows companies to maintain complete control over their stock, prices, commercial relationships and product structure with variants.
 
-### Tipo de Aplicación
-- **Frontend**: Aplicación Web
-- **Backend**: API REST 
-- **Base de Datos**: PostgreSQL con Prisma ORM
+### Application Type
+- **Frontend**: Web Application
+- **Backend**: REST API 
+- **Database**: PostgreSQL with Prisma ORM
 
-### Estado Actual del Desarrollo
-✅ **Completado**:
-- Esquema de base de datos definido
-- Schema de Prisma configurado
-- Rutas CRUD implementadas para:
-  - Usuarios
-  - Clientes
-  - Proveedores
-  - Categorías
-  - Productos
-  - Variantes de productos
-  - **Variant-Suppliers** (relación variantes-proveedores):
-    - `GET /suppliers/:supplierId/variants` - Obtener variantes de un proveedor
-    - `POST /variant-suppliers/` - Crear relación variant-supplier
-    - `GET /variant-suppliers/:id` - Obtener relación específica
-    - `PATCH /variant-suppliers/:id` - Actualizar precio/proveedor principal
-    - `DELETE /variant-suppliers/:id` - Eliminar relación
-- Validaciones con express-validator implementadas
-- **Autenticación JWT implementada**:
-  - Login y register (rutas públicas)
-  - Todas las demás rutas requieren autenticación (incluyendo update de usuario)
-  - Middleware de autorización configurado
-  - Extracción automática de user_id del token
-- **Query optimizada para findAll productos**:
-  - Raw SQL con performance optimizada para listados
-  - Formato consistente con findById
-  - JSON aggregation para variantes
-  - Cast explícito para evitar BigInt serialization errors
-- **Formato de respuesta unificado**:
-  - Conversión automática de Decimal a Number en respuestas
-  - Schema de Swagger actualizado con tipo 'number' para precios
-  - Consistencia total entre findAll y findById
+### Current Development Status
+✅ **Completed**:
+- Database schema defined
+- Prisma schema configured
+- CRUD routes implemented for:
+  - Users
+  - Customers
+  - Suppliers
+  - Categories
+  - Products
+  - Product variants
+  - **Variant-Suppliers** (variant-supplier relationship):
+    - `GET /suppliers/:supplierId/variants` - Get variants from a supplier
+    - `POST /variant-suppliers/` - Create variant-supplier relationship
+    - `GET /variant-suppliers/:id` - Get specific relationship
+    - `PATCH /variant-suppliers/:id` - Update price/primary supplier
+    - `DELETE /variant-suppliers/:id` - Delete relationship
+- Validations with express-validator implemented
+- **JWT Authentication implemented**:
+  - Login and register (public routes)
+  - All other routes require authentication (including user update)
+  - Authorization middleware configured
+  - Automatic user_id extraction from token
+- **Optimized query for findAll products**:
+  - Raw SQL with performance optimization for listings
+  - Consistent format with findById
+  - JSON aggregation for variants
+  - Explicit casting to avoid BigInt serialization errors
+- **Unified response format**:
+  - Automatic Decimal to Number conversion in responses
+  - Swagger schema updated with 'number' type for prices
+  - Total consistency between findAll and findById
+- **🆕 API Documentation with Swagger**:
+  - Complete schemas defined (Product, ProductVariant, Agenda, Category, User, VariantSupplier, Error)
+  - **Products CRUD endpoints documentation completed** ✅:
+    - ✅ `POST /products` - Create new product (completed with specific response format)
+    - ✅ `GET /products` - Get all products (completed with {products, length} format)
+    - ✅ `GET /products/:id` - Get product by ID (completed with {product} format)
+    - ✅ `PATCH /products/:id` - Update product (completed with {product} format)
+    - ✅ `DELETE /products/:id` - Delete product (completed with 204 no content)
+  - **Product Variants CRUD endpoints documentation completed** ✅:
+    - ✅ `GET /products/:productId/variants` - Get all variants for a product (with {variants, length} format)
+    - ✅ `POST /products/:productId/variants` - Create new variant (with {variant} format)
+    - ✅ `GET /products/:productId/variants/:id` - Get variant by ID (with {variant} format)
+    - ✅ `PATCH /products/:productId/variants/:id` - Update variant (with {variant} format)
+    - ✅ `DELETE /products/:productId/variants/:id` - Delete variant (204 no content)
+  - **Categories CRUD endpoints documentation completed** ✅:
+    - ✅ `GET /categories` - Get all categories (with {categories, length} format)
+    - ✅ `POST /categories` - Create new category (with {Category} format)
+    - ✅ `GET /categories/:id` - Get category by ID (with {category} format)
+    - ✅ `PATCH /categories/:id` - Update category (with {category} format)
+    - ✅ `DELETE /categories/:id` - Delete category (204 no content)
+  - **Customers CRUD endpoints documentation completed** ✅:
+    - ✅ `GET /customers` - Get all customers (with {customers, length} format)
+    - ✅ `POST /customers` - Create new customer (with {Customer} format)
+    - ✅ `GET /customers/:id` - Get customer by ID (with {customer} format)
+    - ✅ `PATCH /customers/:id` - Update customer (with {customer} format)
+    - ✅ `DELETE /customers/:id` - Delete customer (204 no content)
+  - **Suppliers CRUD endpoints documentation completed** ✅:
+    - ✅ `GET /suppliers` - Get all suppliers (with {suppliers, length} format)
+    - ✅ `POST /suppliers` - Create new supplier (with {Supplier} format)
+    - ✅ `GET /suppliers/:id` - Get supplier by ID (with {supplier} format)
+    - ✅ `PATCH /suppliers/:id` - Update supplier (with {supplier} format)
+    - ✅ `DELETE /suppliers/:id` - Delete supplier (204 no content)
+    - **Note**: Uses "Authentication Invalid" message for 401 errors (different from other endpoints)
+  - **Authentication endpoints documentation completed** ✅:
+    - ✅ `POST /auth/register` - Register new user (with {user, token} format)
+    - ✅ `POST /auth/login` - User login (with {user, token} format)
+    - ✅ `PATCH /auth/profile` - Update user profile (with {user} format)
+    - ✅ `DELETE /auth/profile` - Delete user account (204 no content)
+  - Response format: Success returns appropriate object structure, errors return `{msg: <message>}`
+  - All protected endpoints include JWT authentication requirement
 
-🔄 **En desarrollo**:
-- Paginación para productos, clientes, proveedores
+✅ **All development completed**:
+- **Variant-Suppliers CRUD endpoints documentation completed** ✅:
+  - ✅ `GET /suppliers/:supplierId/variants` - Get variants for a supplier (for purchasing workflow)
+  - ✅ `POST /variant-suppliers/` - Create variant-supplier relationship
+  - ✅ `GET /variant-suppliers/:id` - Get specific relationship
+  - ✅ `PATCH /variant-suppliers/:id` - Update price/primary supplier status
+  - ✅ `DELETE /variant-suppliers/:id` - Delete relationship
 
-## Arquitectura Multi-Tenant
+## Multi-Tenant Architecture
 
-### Principio Fundamental
-**TODAS las tablas (excepto `users`) incluyen `user_id` como clave foránea** para garantizar que cada tenant (usuario) solo pueda acceder a sus propios datos.
+### Fundamental Principle
+**ALL tables (except `users`) include `user_id` as foreign key** to ensure each tenant (user) can only access their own data.
 
-### Implementación de Seguridad Multi-Tenant
+### Multi-Tenant Security Implementation
 ```sql
--- Ejemplo de query seguro que siempre incluye user_id
+-- Example of secure query that always includes user_id
 SELECT * FROM products WHERE user_id = :current_user_id AND id = :product_id;
 
--- Las relaciones también respetan el tenant
+-- Relationships also respect the tenant
 SELECT p.*, c.name as category_name 
 FROM products p 
 JOIN categories c ON c.id = p.category_id 
 WHERE p.user_id = :current_user_id AND c.user_id = :current_user_id;
 ```
 
-### Constraints Multi-Tenant
-Todas las tablas tienen constraints que aseguran que las referencias pertenezcan al mismo usuario:
+### Multi-Tenant Constraints
+All tables have constraints that ensure references belong to the same user:
 
 ```sql
--- Ejemplo en product_variants
+-- Example in product_variants
 CONSTRAINT same_user_check CHECK (
   product_id IN (SELECT id FROM products WHERE user_id = NEW.user_id)
 )
 ```
 
-### Modelo de Datos Multi-Tenant
-La aplicación utiliza arquitectura **multi-tenant** donde cada usuario (tenant) tiene datos completamente aislados. **Todas las tablas incluyen `user_id`** como clave foránea para garantizar el aislamiento de datos.
+### Multi-Tenant Data Model
+The application uses **multi-tenant** architecture where each user (tenant) has completely isolated data. **All tables include `user_id`** as foreign key to guarantee data isolation.
 
-#### Beneficios:
-- ✅ **Completo aislamiento de datos**: Cada usuario solo ve sus propios datos
-- ✅ **Escalable para miles de usuarios**: Arquitectura preparada para crecer
-- ✅ **Seguridad a nivel de base de datos**: user_id en todas las tablas previene acceso cruzado
-- ✅ **Integridad referencial**: Todas las relaciones respetan el tenant (user_id)
-- ✅ **Queries automáticamente filtradas**: Siempre se incluye user_id en las consultas
+#### Benefits:
+- ✅ **Complete data isolation**: Each user only sees their own data
+- ✅ **Scalable for thousands of users**: Architecture prepared to grow
+- ✅ **Database-level security**: user_id in all tables prevents cross-access
+- ✅ **Referential integrity**: All relationships respect the tenant (user_id)
+- ✅ **Automatically filtered queries**: user_id always included in queries
 
-### Estructura de Tablas
+### Table Structure
 
-#### 1. Users (Usuarios)
+#### 1. Users
 ```javascript
 {
   id: Integer (PK, Auto-increment)
-  email: String (Único, Requerido)
-  password_hash: String (Requerido)
-  first_name: String (Requerido)
-  last_name: String (Requerido)
-  business_name: String (Opcional)
+  email: String (Unique, Required)
+  password_hash: String (Required)
+  first_name: String (Required)
+  last_name: String (Required)
+  business_name: String (Optional)
   is_active: Boolean (Default: true)
   email_verified: Boolean (Default: false)
   created_at: DateTime (Auto)
@@ -101,236 +146,269 @@ La aplicación utiliza arquitectura **multi-tenant** donde cada usuario (tenant)
 }
 ```
 
-#### 2. Customers (Clientes)
+#### 2. Customers
 ```javascript
 {
   id: Integer (PK, Auto-increment)
-  user_id: Integer (FK -> users.id, Requerido)
-  first_name: String (Requerido)
-  last_name: String (Requerido)
-  company: String (Opcional)
-  phone: String (Opcional)
-  email: String (Requerido)
+  user_id: Integer (FK -> users.id, Required)
+  first_name: String (Required)
+  last_name: String (Required)
+  company: String (Optional)
+  phone: String (Optional)
+  email: String (Required)
   created_at: DateTime (Auto)
   updated_at: DateTime (Auto)
 
-  // Constraint único por usuario
+  // Unique constraint per user
   UNIQUE(user_id, email)
 }
 ```
 
-#### 3. Suppliers (Proveedores)
+#### 3. Suppliers
 ```javascript
 {
   id: Integer (PK, Auto-increment)
-  user_id: Integer (FK -> users.id, Requerido)
-  first_name: String (Requerido)
-  last_name: String (Requerido)
-  company: String (Opcional)
-  phone: String (Opcional)
-  email: String (Requerido)
+  user_id: Integer (FK -> users.id, Required)
+  first_name: String (Required)
+  last_name: String (Required)
+  company: String (Optional)
+  phone: String (Optional)
+  email: String (Required)
   created_at: DateTime (Auto)
   updated_at: DateTime (Auto)
 
-  // Constraint único por usuario
+  // Unique constraint per user
   UNIQUE(user_id, email)
 }
 ```
 
-#### 4. Categories (Categorías) - Auto-referencial
+#### 4. Categories (Self-referential)
 ```javascript
 {
   id: Integer (PK)
-  user_id: Integer (FK -> users.id, Requerido)
-  name: String (Requerido)
-  description: String (Opcional)
-  parent_id: Integer (FK -> categories.id, Opcional)
-  level: Integer (Default: 0, 0=raíz, 1=subcategoría, etc.)
+  user_id: Integer (FK -> users.id, Required)
+  name: String (Required)
+  description: String (Optional)
+  parent_id: Integer (FK -> categories.id, Optional)
+  level: Integer (Default: 0, 0=root, 1=subcategory, etc.)
   created_at: DateTime (Auto)
   updated_at: DateTime (Auto)
 }
 ```
 
-**Ejemplo de jerarquía:**
+**Hierarchy example:**
 ```
-id=1, name="Suministros para Cerveza", parent_id=null, level=0
-id=2, name="Lúpulos", parent_id=1, level=1
-id=3, name="Lúpulos Americanos", parent_id=2, level=2
-id=4, name="Maltas", parent_id=1, level=1
+id=1, name="Beer Supplies", parent_id=null, level=0
+id=2, name="Hops", parent_id=1, level=1
+id=3, name="American Hops", parent_id=2, level=2
+id=4, name="Malts", parent_id=1, level=1
 ```
 
-#### 5. Products (Productos)
+#### 5. Products
 ```javascript
 {
   id: Integer (PK)
-  user_id: Integer (FK -> users.id, Requerido)
-  name: String (Requerido)
-  description: String (Opcional)
-  selling_price: Decimal (Requerido) // Precio de venta - @db.Decimal(10, 2)
+  user_id: Integer (FK -> users.id, Required)
+  name: String (Required)
+  description: String (Optional)
+  selling_price: Decimal (Required) // Selling price - @db.Decimal(10, 2)
   category_id: Integer (FK -> categories.id)
   created_at: DateTime (Auto)
   updated_at: DateTime (Auto)
 }
 ```
 
-#### 6. Product_Variants (Variantes de Producto)
+#### 6. Product_Variants
 ```javascript
 {
   id: Integer (PK)
-  user_id: Integer (FK -> users.id, Requerido)
+  user_id: Integer (FK -> users.id, Required)
   product_id: Integer (FK -> products.id)
-  variant_name: String (Requerido) // "Default" para productos sin variantes
-  is_default: Boolean (Default: false) // Identificador confiable de variante default
-  selling_price_modifier: Decimal (Default: 0) // +/- sobre selling_price - @db.Decimal(10, 2)
-  stock: Integer (Default: 0) // ÚNICO lugar donde se maneja stock
-  attributes: Json (Opcional) // Atributos personalizados
-  min_stock_alert: Integer (Default: 0) // Alerta de stock mínimo
+  variant_name: String (Required) // "Default" for products without variants
+  is_default: Boolean (Default: false) // Reliable default variant identifier
+  selling_price_modifier: Decimal (Default: 0) // +/- on selling_price - @db.Decimal(10, 2)
+  stock: Integer (Default: 0) // ONLY place where stock is managed
+  attributes: Json (Optional) // Custom attributes
+  min_stock_alert: Integer (Default: 0) // Minimum stock alert
   enable_stock_alerts: Boolean (Default: true)
   created_at: DateTime (Auto)
   updated_at: DateTime (Auto)
 
-  // Nota: El constraint único para is_default se debe implementar a nivel de aplicación
-  // ya que PostgreSQL no soporta partial unique constraints con Prisma
+  // Note: Unique constraint for is_default must be implemented at application level
+  // since PostgreSQL doesn't support partial unique constraints with Prisma
 }
 ```
 
-**Casos de uso**:
-- **Producto simple**: variant_name = "Default", maneja stock del producto
-- **Producto con variantes**: Cada variante (talle, color, etc.) con stock independiente
+**Use cases**:
+- **Simple product**: variant_name = "Default", handles product stock
+- **Product with variants**: Each variant (size, color, etc.) with independent stock
 
-#### 7. Variant_Suppliers (Proveedores por Variante)
+#### 7. Variant_Suppliers
 ```javascript
 {
   id: Integer (PK)
-  user_id: Integer (FK -> users.id, Requerido)
+  user_id: Integer (FK -> users.id, Required)
   variant_id: Integer (FK -> product_variants.id)
   supplier_id: Integer (FK -> suppliers.id)
-  purchase_price: Decimal (Requerido) // Precio de compra - @db.Decimal(10, 2)
+  purchase_price: Decimal (Required) // Purchase price - @db.Decimal(10, 2)
   is_primary_supplier: Boolean (Default: false)
   created_at: DateTime (Auto)
   updated_at: DateTime (Auto)
 
-  // Constraint único: un proveedor por variante por usuario
+  // Unique constraint: one supplier per variant per user
   UNIQUE(user_id, variant_id, supplier_id)
 }
 ```
 
-## Decisiones de Diseño Importantes
+## Important Design Decisions
 
-### 1. Tablas Separadas para Clientes y Proveedores
-**Decisión**: Crear tablas separadas `customers` y `suppliers` con estructura idéntica.
-
-**Beneficios**:
-- ✅ Clara separación de responsabilidades
-- ✅ Identificación inmediata del rol del contacto
-- ✅ Permite lógica de negocio diferente en el futuro
-- ✅ Escalabilidad para agregar campos específicos
-
-### 2. Control de Stock Solo en Variantes
-**Decisión**: El stock se maneja únicamente a nivel de variantes de producto.
-
-**Implementación**:
-- **Productos SIN variantes**: Se crea automáticamente una **variante DEFAULT**
-- **Productos CON variantes**: Cada variante maneja su propio stock
-- La variante default permite definir stock y stock mínimo para productos simples
-
-**Rationale**:
-- Consistencia: toda la lógica de stock está centralizada en `product_variants`
-- Flexibilidad: permite evolucionar de producto simple a producto con variantes
-- Simplicidad: un solo lugar para consultar stock independientemente del tipo de producto
-
-### 3. Jerarquía de Categorías Auto-referencial
-**Decisión**: Usar tabla auto-referencial para categorías con múltiples niveles.
-
-**Beneficios**:
-- ✅ Flexibilidad completa en la estructura
-- ✅ Soporte para categorías anidadas ilimitadas
-- ✅ Fácil navegación y organización
-
-### 4. Múltiples Proveedores por Variante
-**Decisión**: Permitir múltiples proveedores por variante con precios diferentes.
-
-**Beneficios**:
-- ✅ Comparación de precios
-- ✅ Proveedores de respaldo
-- ✅ Optimización de costos
-
-### 5. Autenticación y Autorización
-**Decisión**: Implementación completa de JWT con protección en todas las rutas.
-
-**Implementación**:
-- **Rutas públicas**: Solo `POST /auth/login` y `POST /auth/register`
-- **Rutas protegidas**: Todas las demás (incluyendo update de usuario)
-- **Middleware**: Extracción automática de user_id del token JWT
-- **Seguridad multi-tenant**: user_id siempre validado en cada operación
-
-### 6. Query Optimization para findAll Products
-**Decisión**: Usar raw SQL con JSON aggregation para máximo rendimiento.
-
-**Implementación**:
-- Raw SQL query para findAll (performance crítica con muchos productos)
-- Prisma para findById (menos crítico, más legible)
-- Formato consistente entre ambos endpoints
-- Cast explícito para evitar BigInt serialization errors
-- JSON aggregation para incluir variantes en una sola query
+### 1. Separate Tables for Customers and Suppliers
+**Decision**: Create separate `customers` and `suppliers` tables with identical structure.
 
 **Benefits**:
-- ✅ **Performance**: Una sola query vs múltiples roundtrips
-- ✅ **Consistencia**: Mismo formato de respuesta en findAll y findById
-- ✅ **Escalabilidad**: Optimizado para manejar grandes volúmenes de productos
-- ✅ **Mantenibilidad**: Estructura clara y documentada
+- ✅ Clear separation of responsibilities
+- ✅ Immediate identification of contact role
+- ✅ Allows different business logic in the future
+- ✅ Scalability to add specific fields
 
-### 7. Formato de Respuesta Unificado para Precios
-**Decisión**: Convertir todos los campos Decimal a Number en las respuestas de la API.
+### 2. Stock Control Only in Variants
+**Decision**: Stock is managed exclusively at product variant level.
 
-**Implementación**:
-- Middleware/utilidad para convertir `selling_price`, `selling_price_modifier`, `purchase_price` de string a number
-- Schema de Swagger actualizado con tipo 'number' para todos los precios
-- Consistencia total entre base de datos (Decimal) y API (Number)
+**Implementation**:
+- **Products WITHOUT variants**: A **DEFAULT variant** is automatically created
+- **Products WITH variants**: Each variant manages its own stock
+- Default variant allows defining stock and minimum stock for simple products
 
 **Rationale**:
-- ✅ **UX mejorada**: Frontend recibe números directamente
-- ✅ **Precisión mantenida**: Base de datos sigue usando Decimal
-- ✅ **Consistencia**: Todos los endpoints devuelven el mismo formato
-- ✅ **Compatibilidad**: Funciona perfectamente con JSON y JavaScript
+- Consistency: all stock logic is centralized in `product_variants`
+- Flexibility: allows evolution from simple product to product with variants
+- Simplicity: single place to query stock regardless of product type
 
-## Lógica de Negocio: Productos y Variantes
+### 3. Self-referential Category Hierarchy
+**Decision**: Use self-referential table for categories with multiple levels.
 
-### Flujo para Productos Sin Variantes
-1. **Creación del producto**: Se crea normalmente
-2. **Variante automática**: El sistema crea una variante con:
+**Benefits**:
+- ✅ Complete flexibility in structure
+- ✅ Support for unlimited nested categories
+- ✅ Easy navigation and organization
+
+### 4. Multiple Suppliers per Variant
+**Decision**: Allow multiple suppliers per variant with different prices.
+
+**Benefits**:
+- ✅ Price comparison
+- ✅ Backup suppliers
+- ✅ Cost optimization
+
+### 5. Authentication and Authorization
+**Decision**: Complete JWT implementation with protection on all routes except auth.
+
+**Implementation**:
+- **Public routes**: Only `POST /auth/login` and `POST /auth/register`
+- **Protected routes**: All others (including user profile management)
+- **Profile routes**: `PATCH /auth/profile` and `DELETE /auth/profile` for better security
+- **Middleware**: Automatic user_id extraction from JWT token
+- **Multi-tenant security**: user_id always validated in each operation
+
+### 6. Query Optimization for findAll Products
+**Decision**: Use raw SQL with JSON aggregation for maximum performance.
+
+**Implementation**:
+- Raw SQL query for findAll (critical performance with many products)
+- Prisma for findById (less critical, more readable)
+- Consistent format between both endpoints
+- Explicit cast to avoid BigInt serialization errors
+- JSON aggregation to include variants in single query
+
+**Benefits**:
+- ✅ **Performance**: Single query vs multiple roundtrips
+- ✅ **Consistency**: Same response format in findAll and findById
+- ✅ **Scalability**: Optimized to handle large product volumes
+- ✅ **Maintainability**: Clear and documented structure
+
+### 7. Unified Response Format for Prices
+**Decision**: Convert all Decimal fields to Number in API responses.
+
+**Implementation**:
+- Middleware/utility to convert `selling_price`, `selling_price_modifier`, `purchase_price` from string to number
+- Swagger schema updated with 'number' type for all prices
+- Total consistency between database (Decimal) and API (Number)
+
+**Rationale**:
+- ✅ **Improved UX**: Frontend receives numbers directly
+- ✅ **Precision maintained**: Database still uses Decimal
+- ✅ **Consistency**: All endpoints return the same format
+- ✅ **Compatibility**: Works perfectly with JSON and JavaScript
+
+### 8. Complete API Documentation with Swagger
+**Decision**: Implement comprehensive Swagger documentation for all endpoints.
+
+**Implementation**:
+- Detailed schemas for all entities (Product, ProductVariant, Agenda, Category, User, VariantSupplier, Error)
+- Complete endpoint documentation with authentication, validation, and error handling
+- Practical examples and realistic data
+- Consistent English documentation
+- Proper data types (number for prices, not float/string)
+- **swagger-jsdoc format** for better code organization and maintainability
+
+**Benefits**:
+- ✅ **Developer Experience**: Clear API contract and examples
+- ✅ **Frontend Integration**: Precise schema for client generation
+- ✅ **Testing**: Easy endpoint testing with Swagger UI
+- ✅ **Documentation**: Self-documenting API with up-to-date examples
+- ✅ **Maintainability**: Documentation close to route definitions
+
+### 9. Profile-based User Management
+**Decision**: Use `/auth/profile` routes instead of `/users/:id` for user operations.
+
+**Implementation**:
+- `PATCH /auth/profile` - Update current user's profile
+- `DELETE /auth/profile` - Delete current user's account
+- user_id automatically extracted from JWT token
+
+**Benefits**:
+- ✅ **Enhanced Security**: No risk of ID manipulation in URLs
+- ✅ **Simplified Frontend**: No need to track user IDs
+- ✅ **Better UX**: Clear semantic meaning ("my profile")
+- ✅ **Reduced Complexity**: Less validation logic needed
+
+## Business Logic: Products and Variants
+
+### Flow for Products Without Variants
+1. **Product creation**: Created normally
+2. **Automatic variant**: System creates a variant with:
    - `variant_name = "Default"`
    - `selling_price_modifier = 0`
    - `is_default = true`
-   - `stock` y `min_stock_alert` definidos por el usuario (default 0)
-3. **Gestión de stock**: Todo el stock se maneja en la variante default
+   - `stock` and `min_stock_alert` defined by user (default 0)
+3. **Stock management**: All stock is managed in default variant
 
-### Flujo para Productos Con Variantes
-1. **Creación del producto**: Se crea normalmente
-2. **Variantes personalizadas**: El usuario crea variantes específicas:
-   - Ejemplo: "Talle S", "Talle M", "Talle L"
-   - Cada una con `is_default = false`
-   - Stock y alertas independientes (stock default 0)
-3. **Stock distribuido**: Cada variante maneja su propio inventario
+### Flow for Products With Variants
+1. **Product creation**: Created normally
+2. **Custom variants**: User creates specific variants:
+   - Example: "Size S", "Size M", "Size L"
+   - Each with `is_default = false`
+   - Independent stock and alerts (default stock 0)
+3. **Distributed stock**: Each variant manages its own inventory
 
-### Cálculo de has_variants en Frontend
-**Decisión**: Eliminar `has_variants` del backend y calcularlo en el cliente.
+### Frontend has_variants Calculation
+**Decision**: Remove `has_variants` from backend and calculate it on client.
 
 ```javascript
-// En el frontend
+// In frontend
 const hasVariants = product.variants.some(variant => !variant.is_default);
 ```
 
-**Ventajas**:
-- ✅ Query más simple y rápida
-- ✅ Menos redundancia de datos
-- ✅ Lógica trivial fácil de implementar en cliente
+**Advantages**:
+- ✅ Simpler and faster query
+- ✅ Less data redundancy
+- ✅ Trivial logic easy to implement on client
 
-### Formato de Respuesta Unificado
+### Unified Response Format
 
-Tanto `findAll` como `findById` devuelven el mismo formato con **variante default siempre incluida**:
+Both `findAll` and `findById` return the same format with **default variant always included**:
 
-#### Producto CON variantes personalizadas:
+#### Product WITH custom variants:
 ```json
 {
     "id": 12,
@@ -339,14 +417,14 @@ Tanto `findAll` como `findById` devuelven el mismo formato con **variante defaul
     "description": null,
     "category": {
         "id": 4,
-        "name": "Categoria1"
+        "name": "Category1"
     },
     "created_at": "2025-08-12T22:01:33.012Z",
     "updated_at": "2025-08-12T22:01:33.012Z",
     "variants": [
         {
             "id": 11,
-            "variant_name": "Talle S",
+            "variant_name": "Size S",
             "stock": 25,
             "selling_price_modifier": 0.00,
             "min_stock_alert": 5,
@@ -356,7 +434,7 @@ Tanto `findAll` como `findById` devuelven el mismo formato con **variante defaul
         },
         {
             "id": 12,
-            "variant_name": "Talle M", 
+            "variant_name": "Size M", 
             "stock": 1,
             "selling_price_modifier": 10.00,
             "min_stock_alert": 3,
@@ -369,16 +447,16 @@ Tanto `findAll` como `findById` devuelven el mismo formato con **variante defaul
 }
 ```
 
-#### Producto SIN variantes personalizadas (solo default):
+#### Product WITHOUT custom variants (only default):
 ```json
 {
     "id": 15,
-    "name": "Product Simple",
+    "name": "Simple Product",
     "selling_price": 50.00,
     "description": null,
     "category": {
         "id": 4,
-        "name": "Categoria1"
+        "name": "Category1"
     },
     "created_at": "2025-08-12T22:01:33.012Z",
     "updated_at": "2025-08-12T22:01:33.012Z",
@@ -398,22 +476,22 @@ Tanto `findAll` como `findById` devuelven el mismo formato con **variante defaul
 }
 ```
 
-### Ventajas de esta Aproximación
-✅ **Consistencia absoluta**: Siempre consultar stock en `product_variants`, incluso para productos "simples"
-✅ **Escalabilidad**: Fácil migración de producto simple a producto con variantes
-✅ **Flexibilidad**: Diferentes precios, stock y alertas por variante
-✅ **Simplicidad en queries**: Un solo lugar para obtener información de stock
-✅ **Formato unificado**: Misma estructura en todos los endpoints
-✅ **Lógica centralizada**: No hay casos especiales para productos "sin variantes"
+### Advantages of This Approach
+✅ **Absolute consistency**: Always query stock in `product_variants`, even for "simple" products
+✅ **Scalability**: Easy migration from simple product to product with variants
+✅ **Flexibility**: Different prices, stock and alerts per variant
+✅ **Simplicity in queries**: Single place to get stock information
+✅ **Unified format**: Same structure in all endpoints
+✅ **Centralized logic**: No special cases for products "without variants"
 
-### Ejemplo Práctico
+### Practical Example
 ```sql
--- Obtener stock total de un producto (con o sin variantes)
+-- Get total stock for a product (with or without variants)
 SELECT SUM(pv.stock) as total_stock
 FROM product_variants pv 
 WHERE pv.product_id = :product_id AND pv.user_id = :user_id;
 
--- Obtener productos con stock bajo
+-- Get products with low stock
 SELECT p.name, pv.variant_name, pv.stock, pv.min_stock_alert
 FROM products p
 JOIN product_variants pv ON p.id = pv.product_id
@@ -421,173 +499,38 @@ WHERE pv.stock <= pv.min_stock_alert
   AND pv.enable_stock_alerts = true
   AND p.user_id = :user_id;
 
--- Determinar si un producto tiene variantes personalizadas
+-- Determine if a product has custom variants
 SELECT p.*, 
        CASE WHEN EXISTS(
          SELECT 1 FROM product_variants pv 
          WHERE pv.product_id = p.id AND pv.is_default = false
-       ) THEN true ELSE false END as has_custom_variants
+       ) THEN true ELSE false END as has_variants
 FROM products p 
 WHERE p.user_id = :user_id;
 ```
 
-## Funcionalidades Principales
+## API Documentation Progress
 
-### Gestión de Usuarios
-- Registro y autenticación con JWT
-- Verificación de email
-- Gestión de perfil de empresa
-- Todas las rutas protegidas excepto login/register
+### ✅ **Completed Documentation**:
 
-### Gestión de Contactos
-- **Clientes**: Gestión completa con información de contacto y empresa
-- **Proveedores**: Gestión completa con información de contacto y empresa
-- Aislamiento de datos por usuario
+#### **Core Entities**:
+- Products CRUD (5 endpoints)
+- Product Variants CRUD (5 endpoints)  
+- Categories CRUD (5 endpoints)
+- Customers CRUD (5 endpoints)
+- Suppliers CRUD (5 endpoints)
+- Authentication (4 endpoints)
+- Variant-Suppliers CRUD (5 endpoints)
 
-### Gestión de Inventario
-- **Categorías**: Jerarquía flexible multi-nivel
-- **Productos**: Información básica y precio de venta
-- **Variantes**: Control detallado de stock, precios y atributos
-  - **Variante Default**: Automática para productos sin variantes personalizadas
-  - **Variantes Personalizadas**: Para productos con múltiples opciones
-- **Stock Centralizado**: Toda la gestión de inventario en `product_variants`
-- **Alertas de Stock**: Configurables por variante (incluyendo default)
+#### **Total Documented**: **34/34 endpoints** 🎉
 
-### Gestión de Proveedores
-- Múltiples proveedores por producto/variante
-- Precios de compra diferenciados
-- Proveedor principal por variante
+### **🏆 API Documentation: 100% Complete**
 
-## Tecnologías Utilizadas
-
-### Backend
-- **Node.js** con **Express.js**
-- **Prisma ORM** para manejo de base de datos
-- **PostgreSQL** como base de datos
-- **express-validator** para validaciones
-- **JWT** para autenticación y autorización
-- Rutas CRUD completas implementadas
-- **Raw SQL queries** para optimización de performance en listados
-
-### Base de Datos
-- **PostgreSQL** con esquema multi-tenant
-- Relaciones complejas con integridad referencial
-- Constraints únicos por usuario
-- JSON aggregation para consultas optimizadas
-
-## Próximos Pasos Sugeridos
-
-### Backend (API)
-1. **Pendiente Inmediato**
-   - **Paginación** (en desarrollo)
-     - Implementar para productos, clientes, proveedores
-     - Parámetros: `?page=1&limit=20`
-     - Response con metadata de paginación
-
-2. **Funcionalidades Avanzadas**
-   - Sistema de alertas de stock bajo
-   - Reportes de inventario
-   - Historial de movimientos de stock
-   - API para búsquedas y filtros
-
-3. **Optimizaciones**
-   - Índices de base de datos
-   - Caché para consultas frecuentes
-   - Monitoring de performance
-
-### Casos de uso específicos:
-- **Asignar proveedor principal**: Automáticamente des-marcar otros como principales
-- **Comparar precios**: Obtener todos los proveedores de una variante con sus precios
-- **Gestión de proveedores**: Ver todas las variantes que suministra un proveedor
-- **Actualización restrictiva**: Solo precio y flag principal pueden modificarse
-- **Cambio de proveedor/variante**: Requiere eliminar relación existente y crear nueva
-
-### Lógica de Negocio Variant-Suppliers
-```javascript
-// ✅ Permitido en UPDATE
-{
-  purchase_price: Decimal, // Nuevo precio de compra
-  is_primary_supplier: Boolean // Cambiar si es proveedor principal
-}
-
-// ❌ NO permitido en UPDATE - Requiere DELETE + POST
-{
-  variant_id: Integer, // Cambiar variante
-  supplier_id: Integer, // Cambiar proveedor
-  user_id: Integer // Siempre del usuario autenticado
-}
-```
-
-**Razón**: Mantener integridad de la relación y evitar confusión en históricos de precios.
-
-### Desestructuración para Updates Parciales
-```javascript
-// JavaScript permite desestructuración sin errores
-const { purchase_price, is_primary_supplier } = req.body;
-
-// Si alguna propiedad no existe, será undefined
-// purchase_price = undefined (si no se envía)
-// is_primary_supplier = true (si se envía)
-
-// Construir objeto de actualización dinámico
-const updateData = {};
-if (purchase_price !== undefined) updateData.purchase_price = purchase_price;
-if (is_primary_supplier !== undefined) updateData.is_primary_supplier = is_primary_supplier;
-```
-
-### Frontend
-1. **Interfaz de Usuario**
-   - Dashboard principal
-   - Gestión de inventario
-   - Gestión de contactos
-   - Reportes y analíticas
-
-2. **Experiencia de Usuario**
-   - Diseño responsive
-   - Interfaz intuitiva
-   - Notificaciones en tiempo real
-
-### Despliegue
-1. **Infraestructura**
-   - Configuración de servidor
-   - Base de datos en producción
-   - Variables de entorno
-   - Monitoreo y logs
-
-## Notas Técnicas Multi-Tenant
-
-### Prisma Schema
-- Generador configurado para output personalizado
-- **Todas las relaciones incluyen user_id** para aislamiento de datos
-- Constraints únicos combinados con user_id (ej: `@@unique([user_id, email])`)
-- Cascading deletes que respetan el tenant
-
-### Validaciones y Seguridad
-- express-validator implementado en todas las rutas
-- **Validación automática de user_id** en todas las operaciones
-- Middleware para verificar ownership de recursos
-- Sanitización de parámetros con control de tenant
-- **Limpieza de datos**: Prevención de modificación de campos protegidos
-  - Validación de campos permitidos en middleware (express-validator)
-  - Limpieza adicional en servicios para campos sensibles
-  - Protección contra modificación de: `user_id`, `id`, `createdAt`, `updatedAt`
-  - **Nota**: `updatedAt` se maneja automáticamente por Prisma (`@updatedAt`)
-
-### Seguridad Multi-Tenant
-- **Aislamiento garantizado**: user_id en todas las tablas
-- **Queries automáticamente filtradas** por tenant
-- **Relaciones verificadas**: constraints que previenen referencias cruzadas
-- **JWT implementado**: Middleware de autenticación con extracción de user_id del token
-
-### Performance Optimizations
-- **Raw SQL para listados**: findAll products optimizado con raw queries
-- **Prisma para operaciones individuales**: findById mantiene sintaxis ORM
-- **JSON aggregation**: Variantes incluidas en una sola query
-- **Cast explícito**: Evita errores de serialización BigInt
-- **Conversión automática**: Decimal a Number en respuestas
-- **Índices**: Configurados para queries multi-tenant frecuentes
-
----
-
-**Última actualización**: Agosto 2025
-**Estado del proyecto**: API base completada con autenticación JWT, variant-suppliers implementado, queries optimizadas, formato de respuesta unificado con conversión automática de precios, paginación en desarrollo, listo para funcionalidades avanzadas y frontend
+All endpoints have been documented with:
+✅ Complete swagger-jsdoc format
+✅ Realistic examples and data
+✅ Consistent response formats
+✅ Proper authentication requirements
+✅ Comprehensive error handling
+✅ Detailed request/response schemas
+✅ Consistent English descriptions

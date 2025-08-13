@@ -1,5 +1,5 @@
 require('dotenv').config()
-const { BadRequestError, UnauthenticatedError } = require("../errors");
+const { UnauthenticatedError, BadRequestError } = require("../errors");
 const jwt = require('jsonwebtoken');
 const prisma = require('../db/prisma');
 
@@ -7,7 +7,7 @@ const authenticationMiddleware = async (req, res, next) => {
     const authHeaders = req.headers.authorization;
 
     if (!authHeaders || !authHeaders.startsWith('Bearer ')) {
-        throw new BadRequestError('Invalid authentication');
+        throw new UnauthenticatedError('Authentication invalid');
     }
 
     const token = authHeaders.split(' ')[1];

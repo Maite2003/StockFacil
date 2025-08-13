@@ -29,7 +29,7 @@ const options = {
           properties: {
             id: { type: 'integer', example: 22 },
             name: { type: 'string', example: "T-Shirt" },
-            selling_price: { type: 'float', example: 12.54 },
+            selling_price: { type: 'number', example: 12.54 },
             description: { type: 'string', nullable: true, example: "Cotton T-Shirt" },
             category: {
               type: 'object',
@@ -46,7 +46,7 @@ const options = {
                   id: { type: 'integer', example: 14 },
                   variant_name: { type: 'string', example: "Oversize" },
                   stock: { type: 'integer', example: 7 },
-                  selling_price_modifier: { type: 'float', example: 5.00 },
+                  selling_price_modifier: { type: 'number', example: 5.00 },
                   is_default: { type: 'boolean', example: false }
                 }
               }
@@ -62,7 +62,7 @@ const options = {
             id: { type: 'integer', example: 11 },
             variant_name: { type: 'string', example: 'Size S' },
             stock: { type: 'integer', example: 25 },
-            selling_price_modifier: { type: 'float', example: 0.00 },
+            selling_price_modifier: { type: 'number', example: 0.00 },
             min_stock_alert: { type: 'integer', example: 5 },
             enable_stock_alerts: { type: 'boolean', example: true },
             is_default: { type: 'boolean', example: false },
@@ -125,15 +125,25 @@ const options = {
         type: 'object',
         properties: {
             id: { type: 'integer', example: 1 },
-            variant_id: { type: 'integer', example: 11 },
-            supplier_id: { type: 'integer', example: 5 },
-            purchase_price: { type: 'string', example: '150.00' },
+            variant: { 
+              type: 'object',
+              properties: {
+                id: { type: "integer", example: 5 },
+                variant_name: { type: "string", example: "T-Shirt" },
+                product: {
+                  type: "object",
+                  properties: {
+                    id: { type: "integer", example: 1 },
+                    name: { type: "string", example: "Clothing" }
+                  }
+                },
+                stock: { type: "integer", example: 20 }
+              }
+            },
             is_primary_supplier: { type: 'boolean', example: true },
+            purchase_price: { type: 'number', example: 150.00 },
             created_at: { type: 'string', format: 'date-time' },
-            updated_at: { type: 'string', format: 'date-time' },
-            // Nested objects
-            supplier: { $ref: '#/components/schemas/Agenda' },
-            variant: { $ref: '#/components/schemas/ProductVariant' }
+            updated_at: { type: 'string', format: 'date-time' }
           }
         }
       }

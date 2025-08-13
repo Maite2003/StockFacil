@@ -183,7 +183,7 @@ class productServices {
             where: {user_id: userId, id: productId}
         });
         if (!product) {
-            throw new NotFoundError(`Product with id ${productId} does not exists`);
+            throw new NotFoundError(`Product with id ${productId} not found`);
         }
         // update product fields
         const processed = this.beforeSave(productData);
@@ -236,7 +236,7 @@ class productServices {
                 where: {id: productId, user_id: userId}
             });
         } catch(error) {
-            throw new NotFoundError(`Product with id ${productId} does not exists`);
+            throw new NotFoundError(`Product with id ${productId} not found`);
         }
     }
 }
