@@ -42,16 +42,35 @@
   - Automatic Decimal to Number conversion in responses
   - Swagger schema updated with 'number' type for prices
   - Total consistency between findAll and findById
+- **🆕 Advanced Pagination System**:
+  - Complete pagination with metadata (currentPage, totalPages, totalItems, etc.)
+  - Search functionality across relevant fields
+  - Flexible sorting (sortBy field, sortOrder asc/desc)
+  - Query parameters: page, limit, search, sortBy, sortOrder
+  - Implemented in GET /products, /customers, /suppliers, /variants endpoints
+  - Maximum 100 items per page for performance
 - **🆕 API Documentation with Swagger**:
   - Complete schemas defined (Product, ProductVariant, Agenda, Category, User, VariantSupplier, Error)
+  - **New Pagination Schemas**:
+    - `Pagination` - Complete pagination metadata with 10 fields
+    - `PaginatedProductsResponse` - Products with pagination
+    - `PaginatedCustomersResponse` - Customers with pagination  
+    - `PaginatedSuppliersResponse` - Suppliers with pagination
+    - `PaginatedVariantsResponse` - Variants with pagination
+  - **New Query Parameters**:
+    - `PageParam` - Page number (1-based, default 1)
+    - `LimitParam` - Items per page (1-100, default 10)
+    - `SearchParam` - Search term filter
+    - `SortByParam` - Field to sort by
+    - `SortOrderParam` - Sort direction (asc/desc)
   - **Products CRUD endpoints documentation completed** ✅:
     - ✅ `POST /products` - Create new product (completed with specific response format)
-    - ✅ `GET /products` - Get all products (completed with {products, length} format)
+    - ✅ `GET /products` - Get all products **with pagination, search & sorting** (completed with {products, pagination} format)
     - ✅ `GET /products/:id` - Get product by ID (completed with {product} format)
     - ✅ `PATCH /products/:id` - Update product (completed with {product} format)
     - ✅ `DELETE /products/:id` - Delete product (completed with 204 no content)
   - **Product Variants CRUD endpoints documentation completed** ✅:
-    - ✅ `GET /products/:productId/variants` - Get all variants for a product (with {variants, length} format)
+    - ✅ `GET /products/:productId/variants` - Get all variants **with pagination, search & sorting** (with {variants, pagination} format)
     - ✅ `POST /products/:productId/variants` - Create new variant (with {variant} format)
     - ✅ `GET /products/:productId/variants/:id` - Get variant by ID (with {variant} format)
     - ✅ `PATCH /products/:productId/variants/:id` - Update variant (with {variant} format)
@@ -63,13 +82,13 @@
     - ✅ `PATCH /categories/:id` - Update category (with {category} format)
     - ✅ `DELETE /categories/:id` - Delete category (204 no content)
   - **Customers CRUD endpoints documentation completed** ✅:
-    - ✅ `GET /customers` - Get all customers (with {customers, length} format)
+    - ✅ `GET /customers` - Get all customers **with pagination, search & sorting** (with {customers, pagination} format)
     - ✅ `POST /customers` - Create new customer (with {Customer} format)
     - ✅ `GET /customers/:id` - Get customer by ID (with {customer} format)
     - ✅ `PATCH /customers/:id` - Update customer (with {customer} format)
     - ✅ `DELETE /customers/:id` - Delete customer (204 no content)
   - **Suppliers CRUD endpoints documentation completed** ✅:
-    - ✅ `GET /suppliers` - Get all suppliers (with {suppliers, length} format)
+    - ✅ `GET /suppliers` - Get all suppliers **with pagination, search & sorting** (with {suppliers, pagination} format)
     - ✅ `POST /suppliers` - Create new supplier (with {Supplier} format)
     - ✅ `GET /suppliers/:id` - Get supplier by ID (with {supplier} format)
     - ✅ `PATCH /suppliers/:id` - Update supplier (with {supplier} format)
@@ -372,6 +391,24 @@ id=4, name="Malts", parent_id=1, level=1
 - ✅ **Better UX**: Clear semantic meaning ("my profile")
 - ✅ **Reduced Complexity**: Less validation logic needed
 
+### 10. Advanced Pagination System
+**Decision**: Implement comprehensive pagination with search and sorting for all list endpoints.
+
+**Implementation**:
+- **Complete pagination metadata**: 10 fields including currentPage, totalPages, totalItems, itemsPerPage, hasNextPage, hasPreviousPage, nextPage, previousPage, startItem, endItem
+- **Search functionality**: Generic search across relevant fields (name, email, company, etc.)
+- **Flexible sorting**: sortBy any field, sortOrder (asc/desc) with sensible defaults
+- **Performance limits**: Maximum 100 items per page to prevent performance issues
+- **Applied to**: GET /products, /customers, /suppliers, /variants endpoints
+
+**Benefits**:
+- ✅ **Improved Performance**: Controlled data loading prevents overwhelming responses
+- ✅ **Better UX**: Users can find data quickly with search and sorting
+- ✅ **Scalability**: Handles thousands of records efficiently
+- ✅ **Consistent Interface**: Same pagination format across all entities
+- ✅ **Complete Metadata**: Frontend gets all information needed for pagination UI
+- ✅ **Flexibility**: Supports various sorting and filtering requirements
+
 ## Business Logic: Products and Variants
 
 ### Flow for Products Without Variants
@@ -514,23 +551,52 @@ WHERE p.user_id = :user_id;
 ### ✅ **Completed Documentation**:
 
 #### **Core Entities**:
-- Products CRUD (5 endpoints)
-- Product Variants CRUD (5 endpoints)  
+- Products CRUD (5 endpoints) - **with advanced pagination**
+- Product Variants CRUD (5 endpoints) - **with advanced pagination**
 - Categories CRUD (5 endpoints)
-- Customers CRUD (5 endpoints)
-- Suppliers CRUD (5 endpoints)
+- Customers CRUD (5 endpoints) - **with advanced pagination**
+- Suppliers CRUD (5 endpoints) - **with advanced pagination**
 - Authentication (4 endpoints)
 - Variant-Suppliers CRUD (5 endpoints)
 
 #### **Total Documented**: **34/34 endpoints** 🎉
 
-### **🏆 API Documentation: 100% Complete**
+### **Advanced Pagination Features**:
+- **4 endpoints with full pagination**: Products, Variants, Customers, Suppliers
+- **Complete metadata**: 10 pagination fields for optimal UX
+- **Search functionality**: Cross-field search capability
+- **Flexible sorting**: sortBy field + sortOrder direction
+- **Performance optimized**: Max 100 items per page limit
+- **Query parameters**: page, limit, search, sortBy, sortOrder
+
+### **Pagination Response Format**:
+```json
+{
+  "products": [...], // or customers, suppliers, variants
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 5,
+    "totalItems": 48,
+    "itemsPerPage": 10,
+    "hasNextPage": true,
+    "hasPreviousPage": false,
+    "nextPage": 2,
+    "previousPage": null,
+    "startItem": 1,
+    "endItem": 10
+  }
+}
+```
+
+### **🏆 API Documentation: 100% Complete with Advanced Pagination**
 
 All endpoints have been documented with:
 ✅ Complete swagger-jsdoc format
+✅ Advanced pagination schemas and parameters
 ✅ Realistic examples and data
 ✅ Consistent response formats
 ✅ Proper authentication requirements
 ✅ Comprehensive error handling
 ✅ Detailed request/response schemas
 ✅ Consistent English descriptions
+✅ Search and sorting capabilities

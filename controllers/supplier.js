@@ -3,8 +3,8 @@ const VariantSupplierServices = require('../services/variant-supplier');
 const { StatusCodes } = require('http-status-codes');
 
 const getAllSuppliers = async (req, res) => {
-    const suppliers = await SupplierServices.findAll(req.user.id);
-    res.status(StatusCodes.OK).json({suppliers});
+    const response = await SupplierServices.findAll(req.user.id);
+    res.status(StatusCodes.OK).json(response);
 }
 
 const getSupplier = async (req, res) => {
@@ -32,8 +32,8 @@ const deleteSupplier = async (req, res) => {
 
 const getAllProductsFromSupplier = async (req, res) => {
     const supplierId = Number(req.params.supplierId);
-    const products = await VariantSupplierServices.findAll(req.user.id, supplierId);
-    res.status(StatusCodes.OK).json({ products });
+    const variants = await VariantSupplierServices.findAll(req.user.id, supplierId);
+    res.status(StatusCodes.OK).json({variants, length: variants.length});
 }
 
 module.exports = {

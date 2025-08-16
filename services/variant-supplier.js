@@ -25,7 +25,7 @@ class VariantSupplierServices {
                         id: true,
                         variant_name: true,
                         product: {
-                            select: {id: true, name: true}
+                            select: {id: true, name: true, selling_price: true}
                         },
                         stock: true
                     }

@@ -38,25 +38,17 @@ const { categoryCreateValidation, categoryUpdateValidation } = require('../valid
  *                   example: 8
  *                   description: Total number of categories returned
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  * 
  *   post:
  *     summary: Create a new category
@@ -93,38 +85,26 @@ const { categoryCreateValidation, categoryUpdateValidation } = require('../valid
  *             schema:
  *               type: object
  *               properties:
- *                 Category:
+ *                 category:
  *                   $ref: '#/components/schemas/Category'
  *       400:
  *         description: Bad request - Invalid input data
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Name is required"
+ *               $ref: '#/components/schemas/Error'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  */
 
 router.route('/').get(getAllCategories).post(notValidFields, categoryCreateValidation, handleValidationErrors, createCategory);
@@ -157,35 +137,23 @@ router.route('/').get(getAllCategories).post(notValidFields, categoryCreateValid
  *                 category:
  *                   $ref: '#/components/schemas/Category'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Category not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Category with id 2 not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  * 
  *   patch:
  *     summary: Update a category
@@ -242,35 +210,23 @@ router.route('/').get(getAllCategories).post(notValidFields, categoryCreateValid
  *                 category:
  *                   $ref: '#/components/schemas/Category'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Category not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Category with id 2 not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  * 
  *   delete:
  *     summary: Delete a category
@@ -290,35 +246,23 @@ router.route('/').get(getAllCategories).post(notValidFields, categoryCreateValid
  *       204:
  *         description: Category deleted successfully (no content)
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Category not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Category with id 82not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  */
 
 router.route('/:id').get(getCategory).patch(notValidFields, categoryUpdateValidation, handleValidationErrors, updateCategory).delete(deleteCategory);

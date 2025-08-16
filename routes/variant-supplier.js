@@ -110,6 +110,12 @@ const notValidFields = require('../validators/not-valid');
  *               $ref: '#/components/schemas/Error'
  *             example:
  *               msg: "Variant or supplier not found"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 router.route('/').post(notValidFields, variantSupplierCreateValidation, handleValidationErrors, createVariantSupplier);
@@ -156,21 +162,24 @@ router.route('/').post(notValidFields, variantSupplierCreateValidation, handleVa
  *                 created_at: "2025-08-13T10:30:00.000Z"
  *                 updated_at: "2025-08-13T10:30:00.000Z"
  *       401:
- *         description: Authentication token required
+ *         description: Unauthenticated
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Authentication invalid"
  *       404:
  *         description: Variant-supplier relationship not found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Variant Supplier with id 1 not found"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ * 
  *   patch:
  *     tags: [Variant-Suppliers]
  *     summary: Update variant-supplier relationship
@@ -233,31 +242,25 @@ router.route('/').post(notValidFields, variantSupplierCreateValidation, handleVa
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             examples:
- *               no_data:
- *                 summary: No data to update
- *                 value:
- *                   error: "No data to update"
- *               validation_error:
- *                 summary: Validation error
- *                 value:
- *                   msg: "Purchase price must be a positive number"
  *       401:
- *         description: Authentication token required
+ *         description: Unauthenticated
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Authentication invalid"
  *       404:
  *         description: Variant-supplier relationship not found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Variant Supplier with id 1 not found"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ * 
  *   delete:
  *     tags: [Variant-Suppliers]
  *     summary: Delete variant-supplier relationship
@@ -281,16 +284,19 @@ router.route('/').post(notValidFields, variantSupplierCreateValidation, handleVa
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Authentication invalid"
  *       404:
  *         description: Variant-supplier relationship not found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Variant Supplier with id 1 not found"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ * 
  */
 
 router.route('/:id').get(getVariantSupplier).delete(deleteVariantSupplier).patch(notValidFields, variantSupplierUpdateValidation, handleValidationErrors, updateVariantSupplier);

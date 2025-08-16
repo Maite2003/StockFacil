@@ -25,6 +25,7 @@ const {
     productVariantUpdateValidation
 } = require('../validators/product-variant');
 const handleValidationErrors = require('../middleware/validation');
+const paginationMiddleware = require('../middleware/pagination');
 const notValidFields = require('../validators/not-valid');
 
 /**
@@ -75,34 +76,10 @@ const notValidFields = require('../validators/not-valid');
  *                   $ref: '#/components/schemas/Product'
  *       400:
  *         description: Bad request - Invalid input data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Name is required"
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *         description: Unauthorized
  *       500:
  *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
  * 
 *   get:
  *     summary: Get all products
@@ -116,39 +93,54 @@ const notValidFields = require('../validators/not-valid');
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 products:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Product'
- *                 length:
- *                   type: integer
- *                   example: 15
- *                   description: Total number of products returned
+ *               $ref: '#/components/schemas/PaginatedProductsResponse'
+ *             example:
+ *               products:
+ *                 - id: 1
+ *                   name: "Premium Craft Beer Kit"
+ *                   description: "Complete brewing kit"
+ *                   selling_price: 89.99
+ *                   category:
+ *                     id: 1
+ *                     name: "Beer Making Kits"
+ *                   variants:
+ *                     - id: 1
+ *                       variant_name: "Default"
+ *                       stock: 50
+ *                       selling_price_modifier: 0
+ *                       min_stock_alert: 5
+ *                       enable_stock_alerts: true
+ *                       is_default: true
+ *                       attributes: null
+ *                   total_stock: 50
+ *                   created_at: "2025-08-16T10:30:00.000Z"
+ *                   updated_at: "2025-08-16T10:30:00.000Z"
+ *               pagination:
+ *                 currentPage: 1
+ *                 totalPages: 5
+ *                 totalItems: 48
+ *                 itemsPerPage: 10
+ *                 hasNextPage: true
+ *                 hasPreviousPage: false
+ *                 nextPage: 2
+ *                 previousPage: null
+ *                 startItem: 1
+ *                 endItem: 10
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  */
 
-router.route('/').get(getAllProducts).post(notValidFields, productCreateValidation, handleValidationErrors, createProduct);
+router.route('/').get(paginationMiddleware, getAllProducts).post(notValidFields, productCreateValidation, handleValidationErrors, createProduct);
 
 /**
  * @swagger
@@ -178,35 +170,23 @@ router.route('/').get(getAllProducts).post(notValidFields, productCreateValidati
  *                 product:
  *                   $ref: '#/components/schemas/Product'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Product not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Product with id 10 not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  * 
  *   patch:
  *     summary: Update a product
@@ -269,35 +249,23 @@ router.route('/').get(getAllProducts).post(notValidFields, productCreateValidati
  *                 product:
  *                   $ref: '#/components/schemas/Product'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Product not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Product with id 10 not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  * 
  *   delete:
  *     summary: Delete a product
@@ -317,35 +285,23 @@ router.route('/').get(getAllProducts).post(notValidFields, productCreateValidati
  *       204:
  *         description: Product deleted successfully (no content)
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Product not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Product with id 10 not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  */
 
 router.route('/:id').get(getProduct).patch(notValidFields, productUpdateValidation, handleValidationErrors, updateProduct).delete(deleteProduct);
@@ -357,7 +313,7 @@ router.route('/:id').get(getProduct).patch(notValidFields, productUpdateValidati
  * /products/{productId}/variants:
  *   get:
  *     tags: [Product Variants]
- *     summary: Get all variants for a product
+ *     summary: Get all variants for a product with pagination
  *     description: Retrieve all variants belonging to a specific product
  *     security:
  *       - bearerAuth: []
@@ -369,61 +325,77 @@ router.route('/:id').get(getProduct).patch(notValidFields, productUpdateValidati
  *         schema:
  *           type: integer
  *           example: 1
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *       - $ref: '#/components/parameters/SearchParam'
+ *       - name: sortBy
+ *         in: query
+ *         description: Field to sort by
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [variant_name, stock, selling_price_modifier, min_stock_alert, is_default, created_at, updated_at]
+ *           default: variant_name
+ *           example: variant_name
+ *       - $ref: '#/components/parameters/SortOrderParam'
  *     responses:
  *       200:
- *         description: Product variants retrieved successfully
+ *         description: Paginated list of product variants
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 variants:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/ProductVariant'
- *                 length:
- *                   type: integer
- *                   description: Total number of variants
- *                   example: 3
+ *               $ref: '#/components/schemas/PaginatedVariantsResponse'
  *             example:
  *               variants:
  *                 - id: 1
- *                   variant_name: "Size S"
- *                   stock: 25
- *                   selling_price_modifier: 0.00
+ *                   variant_name: "Default"
+ *                   stock: 50
+ *                   selling_price_modifier: 0
  *                   min_stock_alert: 5
  *                   enable_stock_alerts: true
- *                   is_default: false
+ *                   is_default: true
  *                   attributes: null
- *                   created_at: "2025-08-13T10:30:00.000Z"
- *                   updated_at: "2025-08-13T10:30:00.000Z"
+ *                   created_at: "2025-08-16T10:30:00.000Z"
+ *                   updated_at: "2025-08-16T10:30:00.000Z"
  *                 - id: 2
- *                   variant_name: "Size M"
- *                   stock: 15
- *                   selling_price_modifier: 5.00
+ *                   variant_name: "Large"
+ *                   stock: 30
+ *                   selling_price_modifier: 10.00
  *                   min_stock_alert: 3
  *                   enable_stock_alerts: true
  *                   is_default: false
- *                   attributes: {"color": "blue"}
- *                   created_at: "2025-08-13T10:30:00.000Z"
- *                   updated_at: "2025-08-13T10:30:00.000Z"
- *               length: 2
+ *                   attributes: {"size": "Large"}
+ *                   created_at: "2025-08-16T10:30:00.000Z"
+ *                   updated_at: "2025-08-16T10:30:00.000Z"
+ *               pagination:
+ *                 currentPage: 1
+ *                 totalPages: 1
+ *                 totalItems: 2
+ *                 itemsPerPage: 10
+ *                 hasNextPage: false
+ *                 hasPreviousPage: false
+ *                 nextPage: null
+ *                 previousPage: null
+ *                 startItem: 1
+ *                 endItem: 2
  *       401:
- *         description: Authentication token required
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Authentication invalid"
  *       404:
  *         description: Product not found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Product with id 7 not found"
+ *       500: 
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error' 
  *   post:
  *     tags: [Product Variants]
  *     summary: Create a new product variant
@@ -506,27 +478,27 @@ router.route('/:id').get(getProduct).patch(notValidFields, productUpdateValidati
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Variant name is required"
  *       401:
- *         description: Authentication token required
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Authentication invalid"
  *       404:
  *         description: Product not found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Product with id 7 not found"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
 */
 
-router.route('/:productId/variants').get(getAllProductVariants).post(notValidFields, productVariantCreateValidation, handleValidationErrors, createProductVariant);
+router.route('/:productId/variants').get(paginationMiddleware, getAllProductVariants).post(notValidFields, productVariantCreateValidation, handleValidationErrors, createProductVariant);
 
 /**
  * @swagger
@@ -575,21 +547,23 @@ router.route('/:productId/variants').get(getAllProductVariants).post(notValidFie
  *                 created_at: "2025-08-13T10:30:00.000Z"
  *                 updated_at: "2025-08-13T10:30:00.000Z"
  *       401:
- *         description: Authentication token required
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Authentication invalid"
  *       404:
  *         description: Variant not found or doesn't belong to the product
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Variant with id 1 not found"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'   
  *   patch:
  *     tags: [Product Variants]
  *     summary: Update a product variant
@@ -677,24 +651,24 @@ router.route('/:productId/variants').get(getAllProductVariants).post(notValidFie
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Stock must be a positive number"
  *       401:
- *         description: Authentication token required
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Authentication invalid"
  *       404:
  *         description: Variant not found or doesn't belong to the product
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Variant with id 1 not found"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *   delete:
  *     tags: [Product Variants]
  *     summary: Delete a product variant
@@ -720,21 +694,23 @@ router.route('/:productId/variants').get(getAllProductVariants).post(notValidFie
  *       204:
  *         description: Product variant deleted successfully (no content)
  *       401:
- *         description: Authentication token required
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Authentication invalid"
  *       404:
  *         description: Variant not found or doesn't belong to the product
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Variant with id 1 not found"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 router.route('/:productId/variants/:id').get(getProductVariant).patch(notValidFields, productVariantUpdateValidation, handleValidationErrors, updateProductVariant).delete(deleteProductVariant);

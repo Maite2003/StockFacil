@@ -14,52 +14,50 @@ const {
     basicPersonUpdateValidator
 } = require('../validators/customer-supplier');
 const notValidFields = require('../validators/not-valid');
+const paginationMiddleware = require('../middleware/pagination');
 
 /**
  * @swagger
  * /customers:
  *   get:
- *     summary: Get all customers
- *     description: Retrieves a list of all customers for the authenticated user
+ *     summary: Get all customers with pagination
+ *     description: Retrieves a list of all customers for the authenticated user with optional search
  *     tags: [Customers]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *       - $ref: '#/components/parameters/SearchParam'
+ *       - name: sortBy
+ *         in: query
+ *         description: Field to sort by
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [first_name, last_name, email, company, created_at, updated_at]
+ *           default: first_name
+ *           example: first_name
+ *       - $ref: '#/components/parameters/SortOrderParam'
  *     responses:
  *       200:
  *         description: Customers retrieved successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 customers:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Agenda'
- *                 length:
- *                   type: integer
- *                   example: 12
- *                   description: Total number of customers returned
+ *               $ref: '#/components/schemas/PaginatedCustomersResponse'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  * 
  *   post:
  *     summary: Create a new customer
@@ -106,41 +104,29 @@ const notValidFields = require('../validators/not-valid');
  *             schema:
  *               type: object
  *               properties:
- *                 Customer:
+ *                 customer:
  *                   $ref: '#/components/schemas/Agenda'
  *       400:
  *         description: Bad request - Invalid input data
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Email is required"
+ *               $ref: '#/components/schemas/Error'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  */
 
-router.route('/').get(getAllCustomers).post(notValidFields, basicPersonCreateValidator, handleValidationErrors, createCustomer);
+router.route('/').get(paginationMiddleware, getAllCustomers).post(notValidFields, basicPersonCreateValidator, handleValidationErrors, createCustomer);
 
 /**
  * @swagger
@@ -170,35 +156,23 @@ router.route('/').get(getAllCustomers).post(notValidFields, basicPersonCreateVal
  *                 customer:
  *                   $ref: '#/components/schemas/Agenda'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Customer not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Customer with id 12 not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  * 
  *   patch:
  *     summary: Update a customer
@@ -266,35 +240,23 @@ router.route('/').get(getAllCustomers).post(notValidFields, basicPersonCreateVal
  *                 customer:
  *                   $ref: '#/components/schemas/Agenda'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Customer not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Customer with id 12 not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  * 
  *   delete:
  *     summary: Delete a customer
@@ -314,35 +276,23 @@ router.route('/').get(getAllCustomers).post(notValidFields, basicPersonCreateVal
  *       204:
  *         description: Customer deleted successfully (no content)
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Customer not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Customer with id 12 not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  */
 
 router.route('/:id').get(getCustomer).patch(notValidFields, basicPersonUpdateValidator, handleValidationErrors, updateCustomer).delete(deleteCustomer);

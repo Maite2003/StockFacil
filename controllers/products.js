@@ -3,9 +3,13 @@ const { StatusCodes } = require('http-status-codes');
 const productServices = require('../services/product');
 const { NotFoundError } = require('../errors');
 
+/**
+ * Get all products with pagination and optional search
+ * GET /products?page=1&limit=10&search=beer&category=1&sortBy=name&sortOrder=asc
+ */
 const getAllProducts = async (req, res) => {
-    const products = await productServices.findAll(req.user.id);
-    res.status(StatusCodes.OK).json({products, length: products.length});
+    const response = await productServices.findAll(req.user.id, req.pagination, req.query);
+    res.status(StatusCodes.OK).json(response);
 };
 
 const getProduct = async (req, res) => {

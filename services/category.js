@@ -39,21 +39,36 @@ class CategoryServices {
     }
 
     static async findAll(userId) {
-        const categories = await prisma.category.findMany({
-            where: {user_id: userId},
-            select: {
-                id: true,
-                name: true,
-                description: true,
-                level: true,
-                parent: {
-                    select: {
-                        id: true,
-                        name: true
-                    }
-                }
-            }
-        });
+        // const categories = await prisma.category.findMany({
+        //     where: {user_id: userId},
+        //     select: {
+        //         id: true,
+        //         name: true,
+        //         description: true,
+        //         level: true,
+        //         parent: {
+        //             select: {
+        //                 id: true,
+        //                 name: true
+        //             }
+        //         },
+        //         _count: {
+                    
+        //         }
+        //     }
+        // });
+
+        let categories = await prisma.$queryRaw`
+            SELECT 
+                c.*,
+                (SELECT COUNT(*)::int FROM products p WHERE p.category_id = c.id) AS totalProducts
+            FROM categories c
+            WHERE c.user_id = ${userId}
+            ORDER BY c.name ASC
+        `;
+
+        console.log(categories);
+
         return categories;
     }
 
@@ -76,7 +91,16 @@ class CategoryServices {
         if (!category) {
             throw new NotFoundError(`Category with id ${id} not found`);
         }
-        return category;
+        const productsCount = await prisma.products.count({
+            where: {
+                category_id: id,
+                user_id: req.user.id
+            }
+        });
+        return {
+            ...category,
+            totalProducts: productsCount
+        };
     }
 
     static async create(userId, categoryData) {

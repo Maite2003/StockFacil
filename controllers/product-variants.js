@@ -2,10 +2,9 @@ const { StatusCodes } = require('http-status-codes');
 const ProductVariantServices = require('../services/product-variant');
 
 const getAllProductVariants = async (req, res) => {
-    console.log(req.params);
     const productId = Number(req.params.productId)
-    const variants = await ProductVariantServices.findAll(req.user.id, productId);
-    res.status(StatusCodes.OK).json({variants, length: variants.length});
+    const response = await ProductVariantServices.findAll(req.user.id, productId, req.pagination, req.query);
+    res.status(StatusCodes.OK).json(response);
 }
 
 const getProductVariant = async (req, res) => {

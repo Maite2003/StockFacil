@@ -15,52 +15,44 @@ const {
     basicPersonUpdateValidator
 } = require('../validators/customer-supplier');
 const notValidFields = require('../validators/not-valid');
+const paginationMiddleware = require('../middleware/pagination');
 
 /**
  * @swagger
  * /suppliers:
  *   get:
- *     summary: Get all suppliers
- *     description: Retrieves a list of all suppliers for the authenticated user
+ *     summary: Get all suppliers with pagination
+ *     description: Retrieves a list of all suppliers for the authenticated user with optional search
  *     tags: [Suppliers]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *       - $ref: '#/components/parameters/SearchParam'
+ *       - name: sortBy
+ *         in: query
+ *         description: Field to sort by
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [first_name, last_name, email, company, created_at, updated_at]
+ *           default: first_name
+ *           example: first_name
+ *       - $ref: '#/components/parameters/SortOrderParam'
  *     responses:
  *       200:
  *         description: Suppliers retrieved successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 suppliers:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Agenda'
- *                 length:
- *                   type: integer
- *                   example: 8
- *                   description: Total number of suppliers returned
+ *               $ref: '#/components/schemas/PaginatedSuppliersResponse'
+ *       400:
+ *         description: Invalid pagination parameters
  *       401:
  *         description: Unauthorized - Missing or invalid JWT token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
  *       500:
  *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
  * 
  *   post:
  *     summary: Create a new supplier
@@ -114,34 +106,22 @@ const notValidFields = require('../validators/not-valid');
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Email is required"
+ *               $ref: '#/components/schemas/Error'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  */
 
-router.route('/').get(getAllSuppliers).post(notValidFields, basicPersonCreateValidator, handleValidationErrors, createSupplier);
+router.route('/').get(paginationMiddleware, getAllSuppliers).post(notValidFields, basicPersonCreateValidator, handleValidationErrors, createSupplier);
 
 /**
  * @swagger
@@ -171,35 +151,23 @@ router.route('/').get(getAllSuppliers).post(notValidFields, basicPersonCreateVal
  *                 supplier:
  *                   $ref: '#/components/schemas/Agenda'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Supplier not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Supplier with id 45 not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  * 
  *   patch:
  *     summary: Update a supplier
@@ -267,35 +235,23 @@ router.route('/').get(getAllSuppliers).post(notValidFields, basicPersonCreateVal
  *                 supplier:
  *                   $ref: '#/components/schemas/Agenda'
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Supplier not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Supplier with id 45 not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  * 
  *   delete:
  *     summary: Delete a supplier
@@ -315,46 +271,34 @@ router.route('/').get(getAllSuppliers).post(notValidFields, basicPersonCreateVal
  *       204:
  *         description: Supplier deleted successfully (no content)
  *       401:
- *         description: Unauthorized - Missing or invalid JWT token
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Authentication Invalid"
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Supplier not found
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Supplier with id 45 not found"
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 msg:
- *                   type: string
- *                   example: "Internal server error"
+ *               $ref: '#/components/schemas/Error'
  */
 
 router.route('/:id').get(getSupplier).patch(notValidFields, basicPersonUpdateValidator, handleValidationErrors, updateSupplier).delete(deleteSupplier);
 
 /**
  * @swagger
- * /suppliers/{supplierId}/variants:
+ * /suppliers/{id}:
  *   get:
- *     tags: [Variant-Suppliers]
- *     summary: Get all variants for a supplier
+ *     summary: Get all variants for a Supplier
  *     description: Retrieve all variant-supplier relationships for a specific supplier (useful for making purchases)
+ *     tags: [Variant-Suppliers]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -373,57 +317,51 @@ router.route('/:id').get(getSupplier).patch(notValidFields, basicPersonUpdateVal
  *             schema:
  *               type: object
  *               properties:
- *                 variant_suppliers:
+ *                 variants:
  *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/VariantSupplier'
+ *                   $ref: '#/components/schemas/VariantSupplier'
  *                 length:
  *                   type: integer
- *                   description: Total number of variant-supplier relationships
- *                   example: 2
  *             example:
- *               variant_suppliers:
- *                 - id: 1
- *                   variant:
- *                     id: 5
+ *               variants:
+ *                 id: 5
+ *                 variants:
+ *                   - id: 1
  *                     variant_name: "Size M"
  *                     product:
- *                       id: 1
- *                       name: "Cotton T-Shirt"
- *                     stock: 20
- *                   is_primary_supplier: true
- *                   purchase_price: 150.00
- *                   created_at: "2025-08-13T10:30:00.000Z"
- *                   updated_at: "2025-08-13T10:30:00.000Z"
- *                 - id: 2
- *                   variant:
- *                     id: 8
- *                     variant_name: "Size L"
- *                     product:
- *                       id: 2
- *                       name: "Premium Hoodie"
- *                     stock: 15
- *                   is_primary_supplier: false
- *                   purchase_price: 320.00
- *                   created_at: "2025-08-13T10:30:00.000Z"
- *                   updated_at: "2025-08-13T10:30:00.000Z"
- *               length: 2
- *       401:
- *         description: Authentication token required
+ *                       id: 3
+ *                       name: "Premium T-Shirt"
+ *                       selling_price: 75.00
+ *                     stock: 25
+ *                 is_primary_supplier: true
+ *                 purchase_price: 45.50
+ *                 created_at: "2025-08-16T10:30:00.000Z"
+ *                 updated_at: "2025-08-16T10:30:00.000Z"
+ *               length: 1
+ *       400:
+ *         description: Invalid pagination parameters
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Authentication invalid"
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Supplier not found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
- *             example:
- *               msg: "Supplier with id 12 not found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 router.route('/:supplierId/variants').get(getAllProductsFromSupplier);

@@ -3,7 +3,7 @@ const { NotFoundError } = require('../errors');
 const { capitalize } = require('../utils/stringUtils');
 
 class SupplierServices {
-    static beforeSave(supplierData) {
+    static beforeSave(data) {
         const allowedFields = ['first_name', 'last_name', 'company', 'phone',
             'email'
         ];
@@ -34,22 +34,87 @@ class SupplierServices {
         return cleanData;
     }
 
-    static async findAll(userId) {
-        const suppliers = await prisma.supplier.findMany({
-            where: {user_id: userId},
+    static generateWhereClause(userId, search) {
+        // Build WHERE clause for filtering
+        const whereConditions = {
+            user_id: userId
+        };
+
+        // Add search filter
+        if (search && search.trim()) {
+            whereConditions.OR = [
+                { first_name: { contains: search.trim(), mode: 'insensitive' } },
+                { last_name: { contains: search.trim(), mode: 'insensitive' } },
+                { email: { contains: search.trim(), mode: 'insensitive' } },
+                { company: { contains: search.trim(), mode: 'insensitive' } }
+            ];
+        }
+
+        return whereConditions;
+    }
+
+    static generateSort(userId, sortBy, sortOrder) {
+        // Validate sort parameters
+        const validSortFields = ['first_name', 'last_name', 'email', 'company', 'created_at', 'updated_at'];
+        const validSortOrders = ['asc', 'desc'];
+        
+        const finalSortBy = validSortFields.includes(sortBy) ? sortBy : 'first_name';
+        const finalSortOrder = validSortOrders.includes(sortOrder.toLowerCase()) ? sortOrder.toLowerCase() : 'asc';
+
+        return finalSortBy, finalSortOrder;
+    }
+    
+    static async findAll(userId, reqPagination, reqQuery) {
+        const { page, limit, offset } = reqPagination;
+        const { search, sortBy = 'first_name', sortOrder = 'asc' } = reqQuery;
+
+        const whereConditions = this.generateWhereClause(userId, search);
+        const {finalSortBy, finalSortOrder} = this.generateSort(userId, sortBy, sortOrder);
+        const totalItems = await prisma.supplier.count({
+            where: whereConditions
+        });
+
+        // Get paginated results
+        const customers = await prisma.supplier.findMany({
+            where: whereConditions,
+            orderBy: {
+                [finalSortBy]: finalSortOrder
+            },
+            take: limit,
+            skip: offset,
             select: {
                 id: true,
                 first_name: true,
                 last_name: true,
-                email: true,
-                phone: true,
                 company: true,
+                phone: true,
+                email: true,
                 created_at: true,
-                updated_at: true,
+                updated_at: true
             }
         });
-        return suppliers;
+
+        const pagination = calculatePagination(page, limit, totalItems);
+
+        return formatPaginatedResponse(customers, pagination, "suppliers");
     }
+
+    // static async findAll(userId) {
+    //     const suppliers = await prisma.supplier.findMany({
+    //         where: {user_id: userId},
+    //         select: {
+    //             id: true,
+    //             first_name: true,
+    //             last_name: true,
+    //             email: true,
+    //             phone: true,
+    //             company: true,
+    //             created_at: true,
+    //             updated_at: true,
+    //         }
+    //     });
+    //     return suppliers;
+    // }
 
     static async findById(userId, supplierId) {
         const supplier = await prisma.supplier.findFirst({

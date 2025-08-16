@@ -2,8 +2,8 @@ const CustomerServices = require('../services/customer');
 const { StatusCodes } = require('http-status-codes');
 
 const getAllCustomers = async (req, res) => {
-    const customers = await CustomerServices.findAll(req.user.id);
-    res.status(StatusCodes.OK).json({customers, length: customers.length});
+    const response = await CustomerServices.findAll(req.user.id, res.pagination, req.query);
+    res.status(StatusCodes.OK).json(response);
 }
 
 const getCustomer = async (req, res) => {

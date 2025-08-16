@@ -11,6 +11,7 @@ const productsRoute = require('./routes/products');
 const customersRoute = require('./routes/customers');
 const suppliersRoute = require('./routes/suppliers');
 const variantSupplierRoute = require('./routes/variant-supplier');
+const statsRoute = require('./routes/stats');
 
 const { specs, swaggerUi } = require('./swagger');
 
@@ -26,6 +27,7 @@ app.use('/api/v1/categories', authenticationMiddleware, categoriesRoute);
 app.use('/api/v1/customers', authenticationMiddleware, customersRoute);
 app.use('/api/v1/suppliers', authenticationMiddleware, suppliersRoute);
 app.use('/api/v1/variant-suppliers', authenticationMiddleware, variantSupplierRoute);
+app.use('/api/v1/stats', authenticationMiddleware, statsRoute);
 
 app.use(NotFoundMiddleware);
 app.use(ErrorHandlerMiddleware);

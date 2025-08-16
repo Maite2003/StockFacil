@@ -11,7 +11,7 @@ const getAllCategories = async (req, res) => {
 const getCategory = async (req, res) => {
     const categoryId = req.params.id;
     const category = await CategoryServices.findById(req.user.id, categoryId);
-    res.status(StatusCodes.OK).json({category});
+    res.status(StatusCodes.OK).json(category);
 }
 
 const createCategory = async (req, res) => {
