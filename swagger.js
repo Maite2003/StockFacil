@@ -1,6 +1,28 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
+const servers = process.env.NODE_ENV === 'production' 
+  ? [
+      {
+        url: 'https://stockfacil.onrender.com/api',
+        description: 'Production server',
+      },
+      {
+        url: 'http://localhost:3000/api',
+        description: 'Development server',
+      },
+    ]
+  : [
+      {
+        url: 'http://localhost:3000/api',
+        description: 'Development server',
+      },
+      {
+        url: 'https://stockfacil.onrender.com/api',
+        description: 'Production server',
+      },
+    ];
+
 const options = {
   definition: {
     openapi: '3.0.0',
@@ -25,12 +47,7 @@ The API follows REST principles with consistent JSON responses, proper HTTP stat
 
 Built with Node.js, Express, PostgreSQL, and Prisma ORM for optimal performance and scalability.`,
     },
-    servers: [
-      {
-        url: 'http://localhost:3000/api',
-        description: 'Development server',
-      },
-    ],
+    servers: servers,
     components: {
       securitySchemes: {
         bearerAuth: {

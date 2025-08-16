@@ -18,15 +18,23 @@ const { specs, swaggerUi } = require('./swagger');
 
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const mongoSanitize = require('express-mongo-sanitize');
+//const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const cors = require('cors');
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://stockfacil.onrender.com'] 
+    : ['http://localhost:3000'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
 
 const app = express();
 
 // Security middleware
 app.use(helmet());
-app.use(mongoSanitize());
+app.use(cors(corsOptions));
+//app.use(mongoSanitize());
 app.use(hpp());
 
 // Rate limiting
