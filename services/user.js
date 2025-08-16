@@ -9,7 +9,7 @@ class UserServices {
     static async authenticate(email, password) {
         const user = await this.findByEmail(email);
         if (!user) {
-        throw new UnauthenticatedError('Invalid credentials');
+            throw new UnauthenticatedError('Invalid credentials');
         }
 
         const isMatch = await bcrypt.compare(password, user.password_hash);
@@ -17,6 +17,7 @@ class UserServices {
         throw new UnauthenticatedError('Invalid credentials');
         }
 
+        delete user.password_hash;
         return user;
     }
 
@@ -157,18 +158,7 @@ class UserServices {
 
     static async findByEmail(email) {
         const user = await prisma.user.findUnique({
-            where: {email},
-            select: {
-                id: true,
-                first_name: true,
-                last_name: true,
-                email: true,
-                business_name: true,
-                is_active: true,
-                email_verified: true,
-                created_at: true,
-                updated_at: true
-            }
+            where: {email}
         });
         return user;
     }

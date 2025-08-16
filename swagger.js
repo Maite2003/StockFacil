@@ -7,7 +7,23 @@ const options = {
     info: {
       title: 'StockFacil API',
       version: '1.0.0',
-      description: 'API para gestión integral de inventarios, clientes y proveedores',
+      description: `StockFacil is a comprehensive inventory and business management REST API designed for small to medium businesses. It provides complete control over stock, pricing, customer relationships, and supplier management with support for product variants and multi-level categorization.
+
+**Key Features:**
+- Multi-tenant architecture with complete data isolation per user
+- Product management with flexible variant system (size, color, attributes)
+- Stock control with automated low-stock alerts and out-of-stock tracking  
+- Customer and supplier relationship management
+- Hierarchical product categorization with unlimited nesting levels
+- Advanced pagination, search, and sorting capabilities across all resources
+- Comprehensive statistics and reporting for inventory and business insights
+- JWT-based authentication with secure profile management
+- Supplier-variant relationships for purchase price tracking and supplier comparison
+
+**Technical Details:**
+The API follows REST principles with consistent JSON responses, proper HTTP status codes, and comprehensive error handling. All endpoints (except authentication) require valid JWT tokens, ensuring secure multi-tenant operations where each user can only access their own data.
+
+Built with Node.js, Express, PostgreSQL, and Prisma ORM for optimal performance and scalability.`,
     },
     servers: [
       {
