@@ -4,6 +4,11 @@
 [![API Documentation](https://img.shields.io/badge/API%20Docs-Swagger-green?style=for-the-badge&logo=swagger)](https://stockfacil.onrender.com/api-docs)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green?style=for-the-badge&logo=node.js)](https://nodejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue?style=for-the-badge&logo=postgresql)](https://postgresql.org/)
+[![Express](https://img.shields.io/badge/Express-5.0-black?style=for-the-badge&logo=express)](https://expressjs.com/)
+[![JWT](https://img.shields.io/badge/JWT-Authentication-red?style=for-the-badge&logo=jsonwebtokens)](https://jwt.io/)
+
 > **A comprehensive web application for inventory, customer, and supplier management built with modern technologies and best practices.**
 
 ## 🌟 Overview
