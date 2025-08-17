@@ -1,6 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError } = require("../errors");
-const EmailServices = require("../services/emailServices");
+const EmailServices = require("../services/email");
 
 const verifyEmail = async (req, res) => {
     const { token } = req.params;

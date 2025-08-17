@@ -42,6 +42,8 @@
   business_name: String (Optional)
   is_active: Boolean (Default: true)
   email_verified: Boolean (Default: false)
+  email_verification_token: String (Optional)
+  email_verification_expires: DateTime (Optional)
   created_at: DateTime (Auto)
   updated_at: DateTime (Auto)
 }
@@ -131,9 +133,8 @@ id=4, name="Malts", parent_id=1, level=1
   user_id: Integer (Foreign Key -> users.id, Required)
   name: String (Required)
   description: String (Optional)
-  selling_price: Decimal (Required) // precio de venta
+  selling_price: Decimal (Required)
   category_id: Integer (Foreign Key -> categories.id)
-  has_variants: Boolean (Default: false)
   createdAt: DateTime (Auto)
   updatedAt: DateTime (Auto)
   
@@ -153,10 +154,10 @@ id=4, name="Malts", parent_id=1, level=1
   user_id: Integer (Foreign Key -> users.id, Required)
   product_id: Integer (Foreign Key -> products.id)
   variant_name: String (Required)
-  selling_price_modifier: Decimal (Default: 0) // +/- sobre selling_price
-  stock: Integer (Required)
-  // Stock alerts per variant
-  min_stock_alert: Integer (Optional) // null = usa el del producto padre
+  is_default: Boolean (Default: false)
+  selling_price_modifier: Decimal (Default: 0)
+  stock: Integer (Default: 0)
+  min_stock_alert: Integer (Default: 0)
   enable_stock_alerts: Boolean (Default: true)
   createdAt: DateTime (Auto)
   updatedAt: DateTime (Auto)
