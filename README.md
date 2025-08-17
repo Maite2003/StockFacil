@@ -1,4 +1,4 @@
-# 📦 StockFacil - Inventory Management System
+# 📦 StockFacilAPI - Inventory Management API
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-blue?style=for-the-badge&logo=render)](https://stockfacil.onrender.com)
 [![API Documentation](https://img.shields.io/badge/API%20Docs-Swagger-green?style=for-the-badge&logo=swagger)](https://stockfacil.onrender.com/api-docs)
@@ -13,7 +13,7 @@
 
 ## 🌟 Overview
 
-StockFacil is a full-featured inventory management system designed for small to medium businesses. It provides complete control over stock, pricing, commercial relationships, and product variants with a modern, secure, and scalable architecture.
+StockFacil is a full-featured inventory management API designed for small to medium businesses. It provides complete control over stock, pricing, commercial relationships, and product variants with a modern, secure, and scalable architecture.
 
 ### ✨ Key Features
 
