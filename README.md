@@ -313,7 +313,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Maite Nigro**
 - GitHub: [@Maite2003](https://github.com/Maite2003)
-- LinkedIn: [maite-nigro](https://linkedin.com/maite-nigro)
+- LinkedIn: [maite-nigro](https://linkedin.com/in/maite-nigro)
 - Email: maitenigro03@gmail.com
 
 ## 🙏 Acknowledgments
