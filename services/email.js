@@ -64,7 +64,7 @@ class EmailServices {
     
         const userName = `${user.first_name} ${user.last_name}`;
 
-        const verificationUrl = `${process.env.API_URL || `http://localhost:${process.env.PORT}`}/auth/verify-email/${verificationToken}`;
+        const verificationUrl = `${process.env.FRONTEND_URL || `http://localhost:${process.env.PORT}`}/api/v1/auth/verify-email/${verificationToken}`;
         
         const mailOptions = {
         from: {

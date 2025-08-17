@@ -91,7 +91,7 @@ StockFacil is a full-featured inventory management API designed for small to med
    GMAIL_REFRESH_TOKEN="your-google-oauth-refresh-token"
    
    # Frontend URL
-   API_URL="http://localhost:3000"
+   FRONTEND_URL="http://localhost:3000"
    
    # Server
    PORT=3000
@@ -275,7 +275,7 @@ GMAIL_USER="your-business-email@gmail.com"
 GMAIL_CLIENT_ID="your-google-oauth-client-id"
 GMAIL_CLIENT_SECRET="your-google-oauth-client-secret"
 GMAIL_REFRESH_TOKEN="your-google-oauth-refresh-token"
-API_URL="https://your-frontend-domain.com"
+FRONTEND_URL="https://your-frontend-domain.com"
 ```
 
 ### Security Features (Production)
