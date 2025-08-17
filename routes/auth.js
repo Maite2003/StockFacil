@@ -7,6 +7,7 @@ const {
 } = require('../validators/user');
 const handleValidationErrors = require('../middleware/validation');
 const authenticationMiddleware = require('../middleware/authentication');
+const { verifyEmail, verifyEmailStatus, sendVerification } = require('../controllers/email');
 
 const router = express.Router();
 
@@ -280,5 +281,142 @@ router.route('/register').post(userCreateValidation, handleValidationErrors, reg
  */
 
 router.route('/profile').patch(authenticationMiddleware, userUpdateValidation, handleValidationErrors, updateUser).delete(authenticationMiddleware, deleteUser);
+
+/**
+ * @swagger
+ * /auth/send-verification:
+ *   post:
+ *     summary: Send email verification
+ *     description: |
+ *       Sends a verification email to the authenticated user's email address. 
+ *       This endpoint generates a JWT token with 24-hour expiration and sends 
+ *       a professional HTML email containing a verification link. The email is 
+ *       sent using Nodemailer with Gmail OAuth2 for high deliverability. 
+ *       If the user's email is already verified, returns a 409 error. 
+ *       The system handles email service errors gracefully and will return 
+ *       success even if the email service is misconfigured (logging errors internally).
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       204:
+ *         description: Verification email sent successfully
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       409:
+ *         description: Email already verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error or email service error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
+router.route('/send-verification').post(authenticationMiddleware, sendVerification);
+
+/**
+ * @swagger
+ * /auth/verify-email/{token}:
+ *   get:
+ *     summary: Verify email with token
+ *     description: |
+ *       Verifies a user's email address using the JWT token received via email. 
+ *       This is a public endpoint that doesn't require authentication. 
+ *       The token is validated for authenticity, expiration, and purpose. 
+ *       Upon successful verification, the user's email_verified field is set to true 
+ *       and the verification token is cleared from the database for security. 
+ *       The token is single-use and expires after 24 hours. 
+ *       Returns the updated user object on success.
+ *     tags: [Authentication]
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: JWT token received in verification email
+ *         example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInB1cnBvc2UiOiJlbWFpbF92ZXJpZmljYXRpb24iLCJpYXQiOjE2OTI4NzM2MDAsImV4cCI6MTY5Mjk2MDAwMH0.example_signature"
+ *     responses:
+ *       204:
+ *         description: Email verified successfully
+ *       400:
+ *         description: Invalid or expired token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
+router.route('/verify-email/:token').get(verifyEmail);
+
+/**
+ * @swagger
+ * /auth/verification-status:
+ *   get:
+ *     summary: Get email verification status
+ *     description: |
+ *       Returns the current email verification status for the authenticated user. 
+ *       This endpoint is useful for frontend applications to determine whether 
+ *       to display email verification prompts or update the UI based on 
+ *       verification status. The response includes the verification status 
+ *       (boolean) and the user's email address. The status reflects the 
+ *       real-time state from the database.
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Verification status retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 email:
+ *                   type: string
+ *                   format: email
+ *                   description: The user's email address
+ *                 email_verified:
+ *                   type: boolean
+ *                   description: Whether the user's email is verified
+ *             example:
+ *               email: "john.doe@example.com"
+ *               email_verified: true
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
+router.route('/verification-status').get(authenticationMiddleware, verifyEmailStatus);
 
 module.exports = router;

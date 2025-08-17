@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const prisma = require('../db/prisma');
 const { capitalize } = require('../utils/stringUtils');
 const { NotFoundError, UnauthenticatedError } = require('../errors');
+const EmailServices = require('./emailServices');
 
 class UserServices {
     static async authenticate(email, password) {
@@ -36,7 +37,7 @@ class UserServices {
 
     static async beforeSave(data) {
         const allowedFields = ['email', 'first_name',
-            'last_name', 'business_name', 'is_active', 'email_verified'
+            'last_name', 'business_name', 'is_active', 'email_verified', 'email_verification_token', 'email_verification_expires'
         ];
 
         const cleanData = {};
@@ -100,6 +101,9 @@ class UserServices {
     static async register(userData) {
         const user = await this.create(userData);
         const token = this.createJWT(user.id, user.first_name, user.last_name);
+
+        // Send email validation
+        const emailResult = await EmailServices.sendVerificationEmail(user.id, user.email);
         
         return {
             user: {name: user.first_name},

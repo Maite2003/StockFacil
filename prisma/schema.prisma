@@ -24,6 +24,8 @@ model User {
   business_name   String?
   is_active       Boolean  @default(true)
   email_verified  Boolean  @default(false)
+  email_verification_token    String?   
+  email_verification_expires  DateTime? 
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
 
