@@ -22,10 +22,16 @@ const deleteUser = async (req, res) => {
     res.status(StatusCodes.NO_CONTENT).send();
 }
 
+const getProfile = async (req, res) => {
+    const user = await UserServices.findById(req.user.id);
+    res.status(StatusCodes.OK).json({user});
+}
+
 
 module.exports = {
     register,
     login,
     updateUser,
-    deleteUser
+    deleteUser,
+    getProfile
 }

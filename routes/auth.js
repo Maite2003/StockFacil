@@ -1,5 +1,5 @@
 const express = require('express');
-const {register, login, updateUser, deleteUser} = require('../controllers/auth');
+const {register, login, updateUser, deleteUser, getProfile} = require('../controllers/auth');
 const { 
   userCreateValidation, 
   userLoginValidation,
@@ -175,6 +175,49 @@ router.route('/register').post(userCreateValidation, handleValidationErrors, reg
 /**
  * @swagger
  * /auth/profile:
+ *   get:
+ *     summary: Get a user by ID
+ *     description: Retrieves a specific user
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the user
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         description: User retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 category:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ * 
  *   delete:
  *     tags: [Authentication]
  *     summary: Delete user account
@@ -280,7 +323,7 @@ router.route('/register').post(userCreateValidation, handleValidationErrors, reg
  *               msg: "User with id 3 not found"
  */
 
-router.route('/profile').patch(authenticationMiddleware, userUpdateValidation, handleValidationErrors, updateUser).delete(authenticationMiddleware, deleteUser);
+router.route('/profile').patch(authenticationMiddleware, userUpdateValidation, handleValidationErrors, updateUser).delete(authenticationMiddleware, deleteUser).get(authenticationMiddleware, getProfile);
 
 /**
  * @swagger
