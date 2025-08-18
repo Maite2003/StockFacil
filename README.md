@@ -9,7 +9,7 @@
 [![Express](https://img.shields.io/badge/Express-5.0-black?style=for-the-badge&logo=express)](https://expressjs.com/)
 [![JWT](https://img.shields.io/badge/JWT-Authentication-red?style=for-the-badge&logo=jsonwebtokens)](https://jwt.io/)
 
-> **A comprehensive web application for inventory, customer, and supplier management built with modern technologies and best practices.**
+> **A comprehensive API for inventory, customer, and supplier management built with modern technologies and best practices.**
 
 ## 🌟 Overview
 
