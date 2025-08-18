@@ -118,6 +118,7 @@ StockFacil is a full-featured inventory management API designed for small to med
 ### Authentication
 - `POST /auth/register` - User registration
 - `POST /auth/login` - User login
+- `GET /auth/profile` - Get user information
 - `PATCH /auth/profile` - Update user profile
 - `DELETE /auth/profile` - Delete user account
 - `POST /auth/send-verification` - Send email verification
