@@ -3,7 +3,7 @@
 ## General Project Information
 
 ### Description
-**StockFacil** is a comprehensive web application for inventory, customer and supplier management for businesses. It allows companies to maintain complete control over their stock, prices, commercial relationships and product structure with variants.
+**StockFacil** is a comprehensive AI for inventory, customer and supplier management for businesses. It allows companies to maintain complete control over their stock, prices, commercial relationships and product structure with variants.
 
 ### Repository & Deployment
 - **GitHub Repository**: [Maite2003/StockFacil](https://github.com/Maite2003/StockFacil)
